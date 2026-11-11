@@ -1,7 +1,7 @@
 package com.steamhub.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.steamhub.entity.Game;
+import com.steamhub.entity.PO.Game;
 
 /**
  * 游戏表数据访问接口，继承 BaseMapper 获得通用 CRUD。

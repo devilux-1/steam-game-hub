@@ -1,7 +1,7 @@
 package com.steamhub.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.steamhub.entity.AdminUser;
+import com.steamhub.entity.PO.AdminUser;
 
 /**
  * 管理员表数据访问接口。

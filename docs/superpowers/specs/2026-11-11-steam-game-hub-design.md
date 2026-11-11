@@ -122,6 +122,18 @@ Tab 为空时展示引导文案，不留空白。
 
 此偏差不影响任何产品功能，属实现层替换。
 
+### 6.2 代码分层约定
+
+后端对象按职责分为三类，统一放在 `com.steamhub.entity` 下：
+
+| 层 | 包 | 职责 | 示例 |
+| --- | --- | --- | --- |
+| PO | `entity.PO` | 与数据库表一一对应，只做持久化映射，不直接返回前端 | `Game`、`Resource` |
+| VO | `entity.VO` | 返回给前端的展示对象，只含页面需要的字段 | `GameVO`、`ResourceVO`、`StatsOverviewVO` |
+| DTO | `entity.DTO` | 接收前端入参，承载参数校验注解 | `GameQueryDTO`、`GameSaveDTO`、`ResourceSaveDTO` |
+
+约定：Controller 只收发 VO/DTO，Service 内部完成 PO 与 VO/DTO 的转换，Mapper 只操作 PO。
+
 ## 7. 数据模型
 
 ### 7.1 game（游戏）

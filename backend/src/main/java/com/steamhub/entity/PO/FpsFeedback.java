@@ -1,4 +1,4 @@
-package com.steamhub.entity;
+package com.steamhub.entity.PO;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;

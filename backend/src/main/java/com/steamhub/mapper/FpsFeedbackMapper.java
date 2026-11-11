@@ -1,7 +1,7 @@
 package com.steamhub.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.steamhub.entity.FpsFeedback;
+import com.steamhub.entity.PO.FpsFeedback;
 
 /**
  * 帧率反馈表数据访问接口。

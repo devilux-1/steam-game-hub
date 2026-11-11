@@ -1,7 +1,7 @@
 package com.steamhub.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.steamhub.entity.Resource;
+import com.steamhub.entity.PO.Resource;
 
 /**
  * 资源表数据访问接口。

@@ -1,7 +1,7 @@
 package com.steamhub.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.steamhub.entity.NexusModCache;
+import com.steamhub.entity.PO.NexusModCache;
 
 /**
  * Nexus Mod 缓存表数据访问接口。
