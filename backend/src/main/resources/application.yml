@@ -1,0 +1,37 @@
+# 主配置：数据库账号密码通过环境变量注入，本地真实值放在 application-local.yml（已被 .gitignore 排除）
+# 本地启动方式：--spring.profiles.active=local 或设置环境变量 SPRING_PROFILES_ACTIVE=local
+server:
+  port: 8080
+  servlet:
+    # 统一 API 前缀，controller 内只需写 /health 这类相对路径
+    context-path: /api
+
+spring:
+  application:
+    name: steam-game-hub
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL:jdbc:mysql://localhost:3306/steam_game_hub?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true}
+    username: ${DB_USERNAME:}
+    password: ${DB_PASSWORD:}
+    hikari:
+      # 单机部署，连接池按小站点规模配置
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 10000
+  jpa:
+    # 表结构由 sql/schema.sql 维护，应用不生成、不修改 DDL
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+
+# 本地接口文档地址：/api/swagger-ui.html
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    com.steamhub: INFO

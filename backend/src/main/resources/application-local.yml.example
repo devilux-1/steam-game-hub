@@ -1,0 +1,7 @@
+# 本地配置示例：复制为 application-local.yml 后填入真实值（该文件已被 .gitignore 排除）
+# 启动时需激活 local profile：--spring.profiles.active=local
+spring:
+  datasource:
+    # 本机 MySQL 9.3 无 root 账号，使用实际业务账号
+    username: 你的数据库账号
+    password: 你的数据库密码

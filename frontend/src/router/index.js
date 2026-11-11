@@ -1,0 +1,88 @@
+// 路由表：公开页面与后台占位页面；后台访问控制由阶段 0 的本地占位令牌完成。
+import { createRouter, createWebHistory } from 'vue-router'
+import Home from '@/views/Home.vue'
+import GameDetail from '@/views/GameDetail.vue'
+import GraphicsAdvisor from '@/views/GraphicsAdvisor.vue'
+import MyLibrary from '@/views/MyLibrary.vue'
+import AdminLogin from '@/views/AdminLogin.vue'
+import AdminGames from '@/views/AdminGames.vue'
+import AdminResources from '@/views/AdminResources.vue'
+import AdminGraphics from '@/views/AdminGraphics.vue'
+import { hasAdminToken } from '@/utils/adminAuth'
+
+const routes = [
+  { path: '/', name: 'home', component: Home, meta: { title: '首页' } },
+  {
+    path: '/games/:id',
+    name: 'game-detail',
+    component: GameDetail,
+    meta: { title: '游戏条目' }
+  },
+  {
+    path: '/games/:id/graphics',
+    name: 'graphics-advisor',
+    component: GraphicsAdvisor,
+    meta: { title: '画质顾问' }
+  },
+  {
+    path: '/me/library',
+    name: 'my-library',
+    component: MyLibrary,
+    meta: { title: '我的游戏库' }
+  },
+  {
+    path: '/admin/login',
+    name: 'admin-login',
+    component: AdminLogin,
+    meta: { title: '管理员登录' }
+  },
+  {
+    path: '/admin/games',
+    name: 'admin-games',
+    component: AdminGames,
+    meta: { title: '游戏管理', requiresAdmin: true }
+  },
+  {
+    path: '/admin/resources',
+    name: 'admin-resources',
+    component: AdminResources,
+    meta: { title: '资源管理', requiresAdmin: true }
+  },
+  {
+    path: '/admin/graphics',
+    name: 'admin-graphics',
+    component: AdminGraphics,
+    meta: { title: '画质数据', requiresAdmin: true }
+  },
+  // 未匹配路径回首页，避免骨架阶段出现空白页。
+  { path: '/:pathMatch(.*)*', redirect: '/' }
+]
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
+  // 路由切换后回到页面顶部；带锚点的站内跳转不受影响。
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) return savedPosition
+    return { top: 0 }
+  }
+})
+
+/**
+ * 全局前置守卫：更新浏览器标题，并拦截未登录访问的后台页面。
+ * 请求参数：to —— 即将进入的目标路由对象，读取 meta.title / meta.requiresAdmin；from —— 来源路由对象（未使用）；next —— 放行或重定向回调
+ * 返回参数：无；始终通过 next 结束导航
+ */
+router.beforeEach((to, from, next) => {
+  const pageTitle = to.meta.title
+  document.title = pageTitle ? `${pageTitle} · 游戏百宝箱` : '游戏百宝箱'
+
+  // 占位鉴权：本地有令牌即视为已登录，真实校验由阶段 1 的后端接口负责。
+  if (to.meta.requiresAdmin && !hasAdminToken()) {
+    next({ name: 'admin-login', query: { redirect: to.fullPath } })
+    return
+  }
+  next()
+})
+
+export default router
