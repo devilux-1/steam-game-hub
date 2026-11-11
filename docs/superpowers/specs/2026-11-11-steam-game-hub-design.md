@@ -107,17 +107,17 @@ Tab 为空时展示引导文案，不留空白。
 | --- | --- | --- |
 | 前端 | Vue 3 + Vite + Pinia + Vue Router + Element Plus + Axios | |
 | 后端 | Spring Boot 3.2.0（Java 17） | |
-| 持久层 | Spring Data JPA | 见 6.1 |
+| 持久层 | MyBatis-Plus 3.5.17 + mybatis-spring 4.0.0 | 见 6.1 |
 | 鉴权 | Spring Security + JJWT 0.12.3 | |
 | 数据库 | MySQL 9.3 | 本机已运行 |
 | 文档 | springdoc-openapi 2.3.0 | 本地接口文档 |
 | 缓存 | Spring 进程内缓存（ConcurrentMap） | 见 6.1 |
 
-### 6.1 与蓝图 v3 的偏差（环境约束）
+### 6.1 与蓝图 v3 的偏差（环境约束 + 用户决策）
 
-当前开发机无法访问外网，本地 Maven 仓库中不存在 MyBatis-Plus 与 Redis 的可用构件，因此：
+当前开发机无法访问外网，本地 Maven 仓库缺少部分构件，经实测后确定如下方案：
 
-- **MyBatis-Plus → Spring Data JPA**：功能等价，JPA 已在本地仓库中完整可用
+- **MyBatis-Plus 3.5.17（用户指定，已恢复）**：官方 SB3 starter 未缓存，采用手动装配（`MybatisPlusConfig` 提供 `MybatisSqlSessionFactoryBean` + `@MapperScan`），并搭配 **mybatis-spring 4.0.0**。注意：2.1.2 与 Spring 6 不兼容（实测报 `factoryBeanObjectType` 错误），4.0.0 官方面向 Spring 7，但实测在 Spring 6.1 下启动、查库、增删全通过，属经验证的非官方组合，后续如遇异常优先排查此点
 - **Redis → 进程内缓存**：用于缓存 Steam/Nexus 拉取结果与热点查询；单机部署下足够，后续若引入 Redis 可替换实现而不改业务代码
 
 此偏差不影响任何产品功能，属实现层替换。

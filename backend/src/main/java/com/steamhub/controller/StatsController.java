@@ -1,8 +1,8 @@
 package com.steamhub.controller;
 
 import com.steamhub.common.ApiResponse;
-import com.steamhub.repository.GameRepository;
-import com.steamhub.repository.ResourceRepository;
+import com.steamhub.mapper.GameMapper;
+import com.steamhub.mapper.ResourceMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,20 +27,20 @@ public class StatsController {
     private static final String KEY_RESOURCE_COUNT = "resourceCount";
 
     /** 游戏仓储，用于统计游戏总数 */
-    private final GameRepository gameRepository;
+    private final GameMapper gameMapper;
 
     /** 资源仓储，用于统计资源总数 */
-    private final ResourceRepository resourceRepository;
+    private final ResourceMapper resourceMapper;
 
     /**
      * 构造统计接口，注入所需仓储。
      *
-     * @param gameRepository     游戏仓储，非空
-     * @param resourceRepository 资源仓储，非空
+     * @param gameMapper     游戏数据访问接口，非空
+     * @param resourceMapper 资源数据访问接口，非空
      */
-    public StatsController(GameRepository gameRepository, ResourceRepository resourceRepository) {
-        this.gameRepository = gameRepository;
-        this.resourceRepository = resourceRepository;
+    public StatsController(GameMapper gameMapper, ResourceMapper resourceMapper) {
+        this.gameMapper = gameMapper;
+        this.resourceMapper = resourceMapper;
     }
 
     /**
@@ -53,8 +53,9 @@ public class StatsController {
     public ApiResponse<Map<String, Long>> overview() {
         // 键顺序固定为游戏数、资源数，便于前端直接读取
         Map<String, Long> data = new LinkedHashMap<>();
-        data.put(KEY_GAME_COUNT, gameRepository.count());
-        data.put(KEY_RESOURCE_COUNT, resourceRepository.count());
+        // selectCount(null) 表示不加 where 条件，统计全表行数
+        data.put(KEY_GAME_COUNT, gameMapper.selectCount(null));
+        data.put(KEY_RESOURCE_COUNT, resourceMapper.selectCount(null));
         return ApiResponse.ok(data);
     }
 }

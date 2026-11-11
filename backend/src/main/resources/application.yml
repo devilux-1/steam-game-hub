@@ -19,11 +19,7 @@ spring:
       maximum-pool-size: 10
       minimum-idle: 2
       connection-timeout: 10000
-  jpa:
-    # 表结构由 sql/schema.sql 维护，应用不生成、不修改 DDL
-    hibernate:
-      ddl-auto: none
-    open-in-view: false
+  # 持久层已切换为 MyBatis-Plus（见 MybatisPlusConfig），JPA 相关配置移除；表结构由 sql/schema.sql 维护
 
 # 本地接口文档地址：/api/swagger-ui.html
 springdoc:

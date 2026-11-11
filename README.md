@@ -3,12 +3,12 @@
 按游戏聚合 Nexus 精选 Mod、汉化补丁、风灵月影修改器，并提供「稳 60 帧」画质顾问与 Steam 游戏库同步。
 
 - 设计文档：`docs/superpowers/specs/2026-11-11-steam-game-hub-design.md`
-- 技术栈：Vue 3 + Vite + Pinia + Element Plus ｜ Spring Boot 3.2 + Spring Data JPA + Spring Security + MySQL
+- 技术栈：Vue 3 + Vite + Pinia + Element Plus ｜ Spring Boot 3.2 + MyBatis-Plus 3.5 + Spring Security + MySQL
 
 ## 目录结构
 
 ```
-backend/    Spring Boot 后端（Java 17）
+backend/    Spring Boot 后端（Java 17，MyBatis-Plus）
 frontend/   Vue 3 前端（Vite）
 sql/        数据库脚本
 docs/       设计文档
