@@ -26,6 +26,12 @@ public enum ErrorCode {
     /** 请求方法与该路径不匹配 */
     METHOD_NOT_ALLOWED(405, "请求方法不支持"),
 
+    /** 唯一键冲突等数据完整性错误 */
+    DATA_CONFLICT(409, "数据冲突，请检查是否重复提交"),
+
+    /** 请求体格式或媒体类型不被支持 */
+    UNSUPPORTED_MEDIA_TYPE(415, "请求格式不支持"),
+
     /** 通用业务失败：非标准 HTTP 状态码，HTTP 层按 400 返回 */
     BIZ_FAIL(1000, "业务处理失败"),
 

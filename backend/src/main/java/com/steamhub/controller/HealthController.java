@@ -1,6 +1,6 @@
 package com.steamhub.controller;
 
-import com.steamhub.common.ApiResponse;
+import com.steamhub.common.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,16 +28,16 @@ public class HealthController {
     /**
      * 返回服务健康状态。
      *
-     * @return 统一响应体，data 含 status、service、timestamp 三项
+     * @return 统一结果体，data 含 status、service、timestamp 三项
      */
     @GetMapping
     @Operation(summary = "健康检查")
-    public ApiResponse<Map<String, Object>> health() {
+    public Result<Map<String, Object>> health() {
         // 用 LinkedHashMap 保证返回字段顺序固定，便于前端与联调脚本比对
         Map<String, Object> data = new LinkedHashMap<>();
         data.put("status", STATUS_UP);
         data.put("service", SERVICE_NAME);
         data.put("timestamp", LocalDateTime.now().toString());
-        return ApiResponse.ok(data);
+        return Result.success(data);
     }
 }

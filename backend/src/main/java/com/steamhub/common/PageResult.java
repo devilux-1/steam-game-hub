@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 /**
- * 分页结果，作为 {@link ApiResponse} 的 data 返回给前端。
+ * 分页结果，作为 {@link Result} 的 data 返回给前端。
  *
  * @param <T> 列表元素类型
  */

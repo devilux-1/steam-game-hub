@@ -1,6 +1,6 @@
 package com.steamhub.controller;
 
-import com.steamhub.common.ApiResponse;
+import com.steamhub.common.Result;
 import com.steamhub.entity.VO.StatsOverviewVO;
 import com.steamhub.mapper.GameMapper;
 import com.steamhub.mapper.ResourceMapper;
@@ -38,15 +38,15 @@ public class StatsController {
     /**
      * 统计站内游戏数与资源总数。
      *
-     * @return 统一响应体，data 为统计概览视图对象，含游戏数与资源数
+     * @return 统一结果体，data 为统计概览视图对象，含游戏数与资源数
      */
     @GetMapping("/overview")
     @Operation(summary = "站内统计概览")
-    public ApiResponse<StatsOverviewVO> overview() {
+    public Result<StatsOverviewVO> overview() {
         StatsOverviewVO vo = new StatsOverviewVO();
         // selectCount(null) 表示不加 where 条件，统计全表行数
         vo.setGameCount(gameMapper.selectCount(null));
         vo.setResourceCount(resourceMapper.selectCount(null));
-        return ApiResponse.ok(vo);
+        return Result.success(vo);
     }
 }
