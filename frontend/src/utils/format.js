@@ -47,3 +47,17 @@ export function formatDateTime(value) {
   if (!date) return ''
   return `${formatDate(date)} ${pad(date.getHours())}:${pad(date.getMinutes())}`
 }
+
+/**
+ * 把分钟数格式化为易读的时长文本。
+ * 请求参数：minutes —— 分钟数，可为空或负数
+ * 返回参数：如「120 小时」「35 分钟」；0 或无效值返回「0 分钟」
+ */
+export function formatMinutes(minutes) {
+  const value = Math.max(Number(minutes) || 0, 0)
+  if (value < 60) return `${value} 分钟`
+  const hours = value / 60
+  // 不足 10 小时保留一位小数，超过后取整，避免长文本撑坏统计卡
+  const text = hours < 10 ? hours.toFixed(1) : String(Math.round(hours))
+  return `${text} 小时`
+}

@@ -412,6 +412,44 @@ img {
   height: 16px;
 }
 
+/* 已登录用户：头像 + 昵称，点击展开账号菜单 */
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 12px 0 6px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.header-user:hover,
+.header-user:focus-visible {
+  border-color: var(--accent-line);
+  background: var(--surface-raised);
+}
+
+.header-user__avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.header-user__name {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .site-footer {
   padding: 26px 24px;
   border-top: 1px solid var(--line);
@@ -1424,6 +1462,169 @@ img {
   color: var(--text-dim);
   font-size: 12px;
   text-align: center;
+}
+
+/* 统计卡：四格数字，窄屏自动折行 */
+.library-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.library-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.library-stat__label {
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+.library-stat__value {
+  color: var(--text);
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+/* 工具条：左侧排序筛选，右侧同步操作 */
+.library-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.library-toolbar__left,
+.library-toolbar__right {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.library-toolbar__select {
+  width: 150px;
+}
+
+.library-toolbar__switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-soft);
+  font-size: 13px;
+}
+
+.library-toolbar__time {
+  color: var(--text-dim);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 库列表：一行一游戏，封面 + 名称 + 时长 + 站内入口 */
+.library-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.library-item {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr) 220px 92px;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.library-item:hover {
+  border-color: var(--accent-line);
+  background: var(--surface-raised);
+}
+
+.library-item__cover {
+  width: 96px;
+  height: 45px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  background: var(--surface-raised);
+}
+
+.library-item__cover--empty {
+  border: 1px dashed var(--line);
+}
+
+.library-item__title {
+  overflow: hidden;
+  color: var(--text);
+  font-size: 14.5px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.library-item__sub {
+  overflow: hidden;
+  margin-top: 2px;
+  color: var(--text-dim);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.library-item__playtime {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--text-soft);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.library-item__playtime strong {
+  color: var(--text);
+  font-size: 13.5px;
+}
+
+.library-item__last {
+  color: var(--text-dim);
+}
+
+.library-item__link {
+  color: var(--accent);
+  font-size: 12.5px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.library-item__link--muted {
+  color: var(--text-dim);
+}
+
+@media (max-width: 900px) {
+  .library-item {
+    grid-template-columns: 96px minmax(0, 1fr);
+  }
+
+  .library-item__playtime,
+  .library-item__link {
+    grid-column: 2;
+    text-align: left;
+  }
 }
 
 .admin-nav {

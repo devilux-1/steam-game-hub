@@ -88,15 +88,21 @@ function onResponseFulfilled(response) {
 }
 
 /**
- * 响应拦截失败分支：401 清理登录态并跳登录页，其余错误提示后继续抛出供调用方降级。
+ * 响应拦截失败分支：管理员接口 401 清理令牌并跳登录页；普通用户接口 401 只提示，由页面自行展示未登录态。
  * 请求参数：error —— Axios 异常对象，可能包含 response.status、response.data.message 或超时信息；config.silent 为 true 时不弹提示
  * 返回参数：rejected Promise；调用方用 try/catch 或 .catch 决定是否使用兜底数据
  */
 function onResponseRejected(error) {
   const status = error?.response?.status
+  const url = typeof error?.config?.url === 'string' ? error.config.url : ''
   if (status === 401) {
-    ElMessage.error('登录已过期，请重新登录')
-    redirectToAdminLogin()
+    // 只有后台接口才跳管理员登录页，用户侧接口（/api/me、/api/sync）的未登录由页面自己处理
+    if (url.startsWith('/api/admin')) {
+      ElMessage.error('登录已过期，请重新登录')
+      redirectToAdminLogin()
+    } else if (!error?.config?.silent) {
+      ElMessage.error(error?.response?.data?.message || '请先登录 Steam')
+    }
     return Promise.reject(error)
   }
   const backendMessage = error?.response?.data?.message

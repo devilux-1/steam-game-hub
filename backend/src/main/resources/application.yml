@@ -81,3 +81,21 @@ nexus:
     # 单次翻译请求提交的 Mod 条数与相邻请求间隔（过大容易触发限流或超出单次输出上限）
     translate-batch-size: 10
     translate-interval-ms: 300
+
+# Steam 登录与游戏库：Key 通过环境变量注入；OpenID 在部分网络下需要走代理（本地值放 application-local.yml）
+steam:
+  api-key: ${STEAM_API_KEY:}
+  openid-url: https://steamcommunity.com/openid/login
+  api-base-url: https://api.steampowered.com
+  # 回调地址必须与浏览器实际访问的地址一致，否则 Cookie 域对不上
+  callback-url: ${STEAM_CALLBACK_URL:http://localhost:8080/api/auth/steam/callback}
+  frontend-url: ${STEAM_FRONTEND_URL:http://localhost:5173}
+  cookie-name: sgh_user
+  # 会话有效期（秒），默认 7 天
+  cookie-max-age-seconds: 604800
+  # 同一用户两次同步的最小间隔（秒）
+  sync-cooldown-seconds: 60
+  # 代理为空表示直连；国内访问 Steam 社区必须走代理
+  proxy-host: ""
+  proxy-port: 0
+  timeout-seconds: 20
