@@ -2,38 +2,26 @@ package com.steamhub.controller;
 
 import com.steamhub.common.Result;
 import com.steamhub.entity.VO.StatsOverviewVO;
-import com.steamhub.mapper.GameMapper;
-import com.steamhub.mapper.ResourceMapper;
+import com.steamhub.service.StatsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 站内统计接口，供首页展示游戏数与资源数（完整路径 /api/stats/overview）。
+ * Controller 只接收请求并返回统一结果体，统计逻辑在 {@link StatsService}。
  */
 @RestController
 @RequestMapping("/stats")
 @Tag(name = "统计")
+@RequiredArgsConstructor
 public class StatsController {
 
-    /** 游戏仓储，用于统计游戏总数 */
-    private final GameMapper gameMapper;
-
-    /** 资源仓储，用于统计资源总数 */
-    private final ResourceMapper resourceMapper;
-
-    /**
-     * 构造统计接口，注入所需仓储。
-     *
-     * @param gameMapper     游戏数据访问接口，非空
-     * @param resourceMapper 资源数据访问接口，非空
-     */
-    public StatsController(GameMapper gameMapper, ResourceMapper resourceMapper) {
-        this.gameMapper = gameMapper;
-        this.resourceMapper = resourceMapper;
-    }
+    /** 站内统计业务层 */
+    private final StatsService statsService;
 
     /**
      * 统计站内游戏数与资源总数。
@@ -43,10 +31,6 @@ public class StatsController {
     @GetMapping("/overview")
     @Operation(summary = "站内统计概览")
     public Result<StatsOverviewVO> overview() {
-        StatsOverviewVO vo = new StatsOverviewVO();
-        // selectCount(null) 表示不加 where 条件，统计全表行数
-        vo.setGameCount(gameMapper.selectCount(null));
-        vo.setResourceCount(resourceMapper.selectCount(null));
-        return Result.success(vo);
+        return Result.success(statsService.getOverview());
     }
 }

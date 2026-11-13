@@ -7,6 +7,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
@@ -38,5 +40,15 @@ public class SecurityConfig {
                 // 阶段 0 仅打通联调通路，所有请求放行
                 .authorizeHttpRequests(registry -> registry.anyRequest().permitAll());
         return http.build();
+    }
+
+    /**
+     * 密码编码器：管理员密码使用 BCrypt 存储与校验。
+     *
+     * @return BCrypt 编码器
+     */
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

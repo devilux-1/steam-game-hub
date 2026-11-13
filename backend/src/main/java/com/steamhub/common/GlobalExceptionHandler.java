@@ -7,6 +7,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -23,7 +25,7 @@ import java.util.stream.Collectors;
 
 /**
  * 全局异常处理器。
- * 把校验失败、业务异常、路由不存在、数据库冲突与未预料异常统一转换成 {@link Result}，
+ * 把校验失败、业务异常、认证鉴权失败、路由不存在、数据库冲突与未预料异常统一转换成 {@link Result}，
  * 保证前端永远收到 {code, message, data} 结构，不会出现裸 500 或 Spring 默认错误页。
  */
 @Slf4j
@@ -194,15 +196,45 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 兜底处理未预料异常，屏蔽堆栈细节只回传通用提示。
+     * 处理认证失败，例如登录凭证错误或令牌无效。
+     * 单独处理可避免其落入兜底分支被误判为 500，对外只返回通用提示，不暴露失败细节。
      *
-     * @param e 未被其它处理器捕获的异常
+     * @param e       认证异常，携带失败原因
+     * @param request 当前请求，用于日志记录访问路径
+     * @return HTTP 401
+     */
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<Result<Void>> handleAuthentication(AuthenticationException e, HttpServletRequest request) {
+        log.warn("认证失败: uri={}, message={}", request.getRequestURI(), e.getMessage());
+        return build(ErrorCode.UNAUTHORIZED, ErrorCode.UNAUTHORIZED.getMessage());
+    }
+
+    /**
+     * 处理已登录但无权限的访问，例如方法级权限校验拒绝。
+     * 单独处理可避免其落入兜底分支被误判为 500。
+     *
+     * @param e       访问拒绝异常，携带拒绝原因
+     * @param request 当前请求，用于日志记录访问路径
+     * @return HTTP 403
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Result<Void>> handleAccessDenied(AccessDeniedException e, HttpServletRequest request) {
+        log.warn("访问被拒绝: uri={}, message={}", request.getRequestURI(), e.getMessage());
+        return build(ErrorCode.FORBIDDEN, ErrorCode.FORBIDDEN.getMessage());
+    }
+
+    /**
+     * 兜底处理未预料异常，记录案发现场信息与完整堆栈，对外只回传通用提示。
+     *
+     * @param e       未被其它处理器捕获的异常
+     * @param request 当前请求，用于记录访问路径与请求方法
      * @return HTTP 500，data 为 null
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Result<Void>> handleException(Exception e) {
-        // 未预料异常必须打全栈日志，否则线上难以定位
-        log.error("服务器内部错误", e);
+    public ResponseEntity<Result<Void>> handleException(Exception e, HttpServletRequest request) {
+        // 手册要求异常日志同时包含案发现场信息与异常堆栈，且同一异常只在最外层记录一次
+        log.error("服务器内部错误: uri={}, method={}, message={}",
+                request.getRequestURI(), request.getMethod(), e.getMessage(), e);
         return build(ErrorCode.INTERNAL_ERROR, ErrorCode.INTERNAL_ERROR.getMessage());
     }
 
