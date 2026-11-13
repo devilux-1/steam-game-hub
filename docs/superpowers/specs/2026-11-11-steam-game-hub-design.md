@@ -377,7 +377,7 @@ Tab 为空时展示引导文案，不留空白。
 | --- | --- | --- | --- |
 | 0 | 工程骨架、数据库建表、统一响应与异常、前后端联调通路 | 2 天 | 已完成 |
 | 1 | F1 F2 F3 + 后台 F9 基础 CRUD + 种子数据 | 1 周 | 已完成 |
-| 2 | Nexus 数据同步与缓存 | 3 天 | 未开始（依赖外网与 Nexus API Key） |
+| 2 | Nexus 数据同步与缓存 | 3 天 | 已完成（真实 Key 待申请，当前为演示数据模式） |
 | 3 | F4 F5 F6 Steam 登录与库同步 | 1 周 | 未开始（依赖外网与 Steam API Key） |
 | 4 | F7 F8 画质顾问 + 首批 20 游戏数据 | 1.5 周 | 未开始 |
 | 5 | 打磨与部署 | 3 天 | 未开始 |
@@ -389,6 +389,26 @@ Tab 为空时展示引导文案，不留空白。
 - 后台 CRUD：游戏（别名全量覆盖、Steam AppID 唯一校验、删除时级联清理资源与别名）、资源（类型白名单、上下架、排序权重）
 - 种子数据：`sql/data.sql` 收录 20 款单机游戏、75 条资源、55 条别名，脚本幂等可重复执行
 - 踩坑记录：手动装配 `MybatisSqlSessionFactoryBean` 时必须 `setPlugins` 注入 `MybatisPlusInterceptor`，否则分页插件静默失效（不执行 count，`total` 恒为 0）
+
+### 11.2 阶段 2 实现说明（Nexus 同步）
+
+**流程**：遍历 `game.nexus_domain` 非空的游戏 → 调 `GET /v1/games/{domain}/mods/trending.json` → 按 `(game_id, mod_id)` upsert 到 `nexus_mod_cache` → 清理本次未出现的旧记录。
+
+| 组件 | 职责 |
+| --- | --- |
+| `NexusProperties` | 配置：Key、baseUrl、应用名/版本、cron、超时、每游戏条数、请求间隔、mock 开关 |
+| `NexusClient` | JDK HttpClient 发请求，带 `apikey`/`Application-Name`/`Application-Version` 头；状态码翻译成可执行提示；字段名按候选名容错解析 |
+| `NexusSyncService` | 单线程异步执行，`AtomicBoolean` 保证同一时刻只有一个任务；单游戏失败不影响其它游戏，错误汇总进状态对象 |
+| `NexusSyncScheduler` | `@Scheduled` 按 `nexus.api.cron` 触发，`enabled=false` 时整体不加载 |
+| `NexusModService` | 只读本地缓存，按点赞数倒序返回，页面不直连 Nexus |
+| `AdminSyncController` | 手动触发 + 状态查询（running/成功数/失败数/写入数/错误摘要） |
+
+**演示数据模式**：`nexus.api.mock=true` 或未配置 Key 时，客户端不发起网络请求，返回内置示例数据，用于无 Key 环境验证链路；生产环境必须配置 `NEXUS_API_KEY` 并把 `mock` 置为 false。
+
+**接口**：
+- `GET /api/games/{id}/nexus-mods?limit=20`（公开，返回点赞数倒序的缓存数据）
+- `POST /api/admin/sync/nexus`（异步触发，立即返回 `started`）
+- `GET /api/admin/sync/nexus/status`（轮询进度）
 
 ## 12. 外部依赖
 

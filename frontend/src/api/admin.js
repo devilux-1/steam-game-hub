@@ -116,3 +116,21 @@ export function updateResource(id, payload) {
 export function deleteResource(id) {
   return http.delete(`/api/admin/resources/${id}`)
 }
+
+/**
+ * 触发一次 Nexus 数据同步（后端异步执行，接口立即返回）。
+ * 请求参数：无
+ * 返回参数：Promise，解析为 { started }；started=false 表示已有同步任务在执行
+ */
+export function triggerNexusSync() {
+  return http.post('/api/admin/sync/nexus')
+}
+
+/**
+ * 查询 Nexus 同步状态与最近一次同步结果。
+ * 请求参数：silent —— 是否静默失败，轮询时传 true 避免后端不可用时反复弹提示，默认 false
+ * 返回参数：Promise，解析为 { running, mockMode, lastStartAt, lastEndAt, totalGames, successGames, failedGames, modsSaved, message }
+ */
+export function getNexusSyncStatus(silent = false) {
+  return http.get('/api/admin/sync/nexus/status', { silent })
+}

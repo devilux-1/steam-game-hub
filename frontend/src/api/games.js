@@ -48,6 +48,18 @@ export function getGameResources(id, type = '') {
 }
 
 /**
+ * 查询指定游戏的 Nexus 同步精选 Mod（公开接口，无需登录）。
+ * 请求参数：id —— 游戏 ID，数字或数字字符串，非空；limit —— 最多返回条数，默认 20
+ * 返回参数：Promise，解析为 NexusModVO 数组，按点赞数倒序；无缓存数据时为空数组
+ */
+export function getGameNexusMods(id, limit = 20) {
+  // 接口约定无数据返回空数组，这里再兜底一次，避免 null 让页面渲染时取 length 报错。
+  return http
+    .get(`/api/games/${id}/nexus-mods`, { params: { limit } })
+    .then((data) => (Array.isArray(data) ? data : []))
+}
+
+/**
  * 上报一次资源点击，由后端累加点击量。
  * 请求参数：id —— 资源 ID，数字或数字字符串，非空
  * 返回参数：Promise，解析为 null；失败时抛出，由调用方决定是否继续跳转外链

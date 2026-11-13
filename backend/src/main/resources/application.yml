@@ -43,3 +43,22 @@ app:
   admin:
     username: ${ADMIN_USERNAME:admin}
     password: ${ADMIN_PASSWORD:admin123}
+
+# Nexus Mods 接口：Key 需在 nexusmods.com 账号页申请，未配置时同步走演示数据模式
+nexus:
+  api:
+    key: ${NEXUS_API_KEY:}
+    base-url: https://api.nexusmods.com
+    app-name: steam-game-hub
+    app-version: 1.0.0
+    # 是否启用定时同步（每天 cron 时间拉一次）
+    enabled: true
+    # cron 写在配置里便于按环境调整，默认每天 04:00
+    cron: 0 0 4 * * ?
+    # 演示数据模式：true 时不请求 Nexus，返回内置示例数据，仅用于验证链路
+    mock: false
+    timeout-seconds: 15
+    # 每个游戏最多缓存的热门 Mod 条数
+    max-mods-per-game: 20
+    # 相邻请求间隔毫秒，降低触发 Nexus 限流的概率
+    request-interval-ms: 700

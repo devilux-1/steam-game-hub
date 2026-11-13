@@ -8,6 +8,30 @@
 
     <AdminNav />
 
+    <!-- Nexus 同步入口：与日常 CRUD 分开，避免把一次性操作混进游戏列表工具栏。 -->
+    <section class="admin-card admin-sync" aria-label="Nexus 数据同步">
+      <div class="admin-sync__main">
+        <h2 class="admin-sync__title">Nexus 数据同步</h2>
+        <p class="admin-sync__desc">
+          把各游戏绑定的 Nexus domain 精选 Mod 拉取到本地缓存，供游戏条目页展示。同步在后台异步执行，触发后可离开本页。
+        </p>
+        <p v-if="syncMockMode" class="admin-sync__mock">当前为演示数据模式（未配置 Nexus API Key）</p>
+      </div>
+      <div class="admin-sync__actions">
+        <button
+          type="button"
+          class="btn btn--gold"
+          :disabled="syncRunning || syncStarting"
+          @click="onTriggerSync"
+        >
+          {{ syncRunning || syncStarting ? '同步中…' : '同步 Nexus 数据' }}
+        </button>
+        <p v-if="syncText" class="admin-sync__status">{{ syncText }}</p>
+        <p v-if="syncLastEndAt" class="admin-sync__time">上次同步：{{ formatDateTime(syncLastEndAt) }}</p>
+        <p v-if="syncMessage" class="admin-sync__message">{{ syncMessage }}</p>
+      </div>
+    </section>
+
     <section class="admin-card">
       <div class="admin-toolbar">
         <el-input
@@ -131,17 +155,19 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref } from 'vue'
+import { onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   listAdminGames,
   createGame,
   updateGame,
-  deleteGame
+  deleteGame,
+  triggerNexusSync,
+  getNexusSyncStatus
 } from '@/api/admin'
 import { getGame } from '@/api/games'
 import { normalizeGame } from '@/utils/game'
-import { formatDate } from '@/utils/format'
+import { formatDate, formatDateTime } from '@/utils/format'
 import AdminNav from '@/components/AdminNav.vue'
 import EmptyState from '@/components/EmptyState.vue'
 
@@ -158,6 +184,20 @@ const dialogVisible = ref(false)
 const saving = ref(false)
 const editingId = ref(null)
 const formRef = ref(null)
+
+// 同步状态轮询间隔，与任务约定一致：每 2 秒查一次，最多持续 60 秒。
+const SYNC_POLL_INTERVAL_MS = 2000
+// 后端同步可能较慢，超过 60 秒后停止轮询，避免页面长时间定时请求。
+const SYNC_POLL_MAX_MS = 60000
+
+const syncStarting = ref(false)
+const syncRunning = ref(false)
+const syncMockMode = ref(false)
+const syncText = ref('')
+const syncMessage = ref('')
+const syncLastEndAt = ref('')
+let syncTimer = null
+let syncDeadline = 0
 
 /**
  * 生成空白的游戏表单。
@@ -272,6 +312,127 @@ function onPageChange(value) {
 }
 
 /**
+ * 停止同步状态轮询。
+ * 请求参数：无
+ * 返回参数：无
+ */
+function stopSyncPolling() {
+  if (syncTimer) {
+    clearInterval(syncTimer)
+    syncTimer = null
+  }
+}
+
+/**
+ * 把后端同步状态写入页面文案。
+ * 请求参数：status —— GET /api/admin/sync/nexus/status 的 data，可能为 null
+ * 返回参数：无；status 非法时保持当前展示
+ */
+function applySyncStatus(status) {
+  if (!status || typeof status !== 'object') return
+  syncMockMode.value = Boolean(status.mockMode)
+  syncMessage.value = status.message || ''
+  syncLastEndAt.value = status.lastEndAt || ''
+  if (status.running) {
+    syncRunning.value = true
+    syncText.value = '同步中…'
+    return
+  }
+  syncRunning.value = false
+  // 从未同步过（lastEndAt 为空）时不展示「同步完成」，避免出现 0 条的空结果。
+  if (status.lastEndAt) {
+    const success = Number(status.successGames) || 0
+    const failed = Number(status.failedGames) || 0
+    const saved = Number(status.modsSaved) || 0
+    syncText.value = `同步完成：成功 ${success} / 失败 ${failed}，写入 ${saved} 条`
+  }
+}
+
+/**
+ * 查询一次同步状态。
+ * 请求参数：silent —— 是否静默失败，轮询时传 true 避免反复弹提示，默认 false
+ * 返回参数：Promise，解析为状态对象；接口异常时返回 null（错误提示由 axios 拦截器按 silent 处理）
+ */
+async function fetchSyncStatus(silent = false) {
+  try {
+    return await getNexusSyncStatus(silent)
+  } catch {
+    return null
+  }
+}
+
+/**
+ * 开始按固定间隔轮询同步状态。
+ * 请求参数：无
+ * 返回参数：无；重复调用会先清掉旧定时器，避免多个轮询并行
+ */
+function startSyncPolling() {
+  stopSyncPolling()
+  syncDeadline = Date.now() + SYNC_POLL_MAX_MS
+  syncTimer = setInterval(pollSyncStatus, SYNC_POLL_INTERVAL_MS)
+}
+
+/**
+ * 轮询一次同步状态，同步结束或超时后停止轮询。
+ * 请求参数：无
+ * 返回参数：无
+ */
+async function pollSyncStatus() {
+  const status = await fetchSyncStatus(true)
+  // 单次查询失败时继续按计划轮询，不提前放弃。
+  if (!status) return
+  applySyncStatus(status)
+  if (status.running) {
+    if (Date.now() >= syncDeadline) {
+      // 超过轮询上限：停止跟踪并提示，后端任务仍会在后台执行完。
+      stopSyncPolling()
+      syncRunning.value = false
+      syncText.value = '同步仍在后台执行，稍后回到本页可查看结果。'
+    }
+    return
+  }
+  stopSyncPolling()
+}
+
+/**
+ * 点击「同步 Nexus 数据」：触发后端异步同步并开始轮询结果。
+ * 请求参数：无
+ * 返回参数：无；接口失败时只恢复按钮，错误信息由拦截器提示
+ */
+async function onTriggerSync() {
+  if (syncRunning.value || syncStarting.value) return
+  syncStarting.value = true
+  syncMessage.value = ''
+  try {
+    const data = await triggerNexusSync()
+    // started=false 表示后端已有任务在跑，同样进入轮询等待它结束。
+    if (data?.started === false) {
+      ElMessage.info('已有同步任务在执行，正在等待结果')
+    }
+    syncRunning.value = true
+    syncText.value = '同步中…'
+    startSyncPolling()
+  } catch {
+    // 触发失败提示已由 axios 拦截器统一弹出，这里不再重复提示。
+  } finally {
+    syncStarting.value = false
+  }
+}
+
+/**
+ * 页面初始化：加载游戏列表并读取一次同步状态，若后端正在同步则开始轮询。
+ * 请求参数：无
+ * 返回参数：无
+ */
+async function onPageReady() {
+  loadList()
+  const status = await fetchSyncStatus()
+  if (!status) return
+  applySyncStatus(status)
+  if (status.running) startSyncPolling()
+}
+
+/**
  * 打开新增游戏弹窗并清空表单。
  * 请求参数：无
  * 返回参数：无
@@ -381,6 +542,8 @@ async function onDelete(row) {
   }
 }
 
-// 首次进入后台游戏管理时加载第一页。
-onMounted(loadList)
+// 首次进入后台游戏管理时加载第一页，并同步一次 Nexus 同步状态。
+onMounted(onPageReady)
+// 离开页面时清理轮询定时器，避免后台页面继续发请求。
+onBeforeUnmount(stopSyncPolling)
 </script>

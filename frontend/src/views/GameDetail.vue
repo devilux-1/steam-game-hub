@@ -80,6 +80,53 @@
       <el-tabs v-model="activeTab" class="resource-tabs" @tab-change="onTabChange">
         <el-tab-pane v-for="tab in tabs" :key="tab.name" :label="tab.label" :name="tab.name">
           <div class="resource-panel">
+            <!-- Nexus 每日精选：后台同步缓存的 Mod，仅 Nexus Tab 展示，与下方手工资源分开展示。 -->
+            <section v-if="tab.name === 'NEXUS_MOD'" class="nexus-feature" aria-label="Nexus 每日精选">
+              <div v-if="nexusState.loading" class="nexus-loading" aria-label="Nexus 精选加载中">
+                <div v-for="row in 2" :key="row" class="nexus-loading__row"></div>
+              </div>
+
+              <!-- 失败时只提示这一块不可用，手工资源仍照常展示。 -->
+              <p v-else-if="nexusState.error" class="nexus-feature__error">
+                Nexus 精选暂不可用，下方收录资源不受影响。
+              </p>
+
+              <template v-else-if="nexusState.items.length">
+                <header class="nexus-feature__head">
+                  <h3 class="nexus-feature__title">Nexus 每日精选</h3>
+                  <p class="nexus-feature__meta">按点赞数排序 · 后台同步缓存</p>
+                </header>
+
+                <div class="nexus-grid">
+                  <!-- 同步卡片直接外链到 Nexus，不计入站内点击量。 -->
+                  <a
+                    v-for="mod in nexusState.items"
+                    :key="mod.modId"
+                    class="nexus-card"
+                    :href="mod.modUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <header class="nexus-card__head">
+                      <span class="nexus-card__badge">NEXUS 同步</span>
+                      <span v-if="mod.author" class="nexus-card__author">{{ mod.author }}</span>
+                    </header>
+                    <h4 class="nexus-card__title">{{ mod.name }}</h4>
+                    <p v-if="mod.summary" class="nexus-card__desc">{{ mod.summary }}</p>
+                    <footer class="nexus-card__stats">
+                      <span class="nexus-card__stat">
+                        <span class="nexus-card__stat-label">赞</span>{{ formatNexusCount(mod.endorsements) }}
+                      </span>
+                      <span class="nexus-card__stat">
+                        <span class="nexus-card__stat-label">下载</span>{{ formatNexusCount(mod.downloads) }}
+                      </span>
+                      <span class="nexus-card__go">打开 Nexus ↗</span>
+                    </footer>
+                  </a>
+                </div>
+              </template>
+            </section>
+
             <div v-if="resourceStates[tab.name].loading" class="resource-loading" aria-label="资源加载中">
               <div v-for="row in 3" :key="row" class="resource-loading__row"></div>
             </div>
@@ -155,9 +202,10 @@
 <script setup>
 import { computed, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getGame, getGameResources, clickResource } from '@/api/games'
+import { getGame, getGameResources, getGameNexusMods, clickResource } from '@/api/games'
 import { normalizeGame } from '@/utils/game'
 import { normalizeResource } from '@/utils/resource'
+import { normalizeNexusMod, formatNexusCount } from '@/utils/nexus'
 import { formatDate, formatDateTime } from '@/utils/format'
 import EmptyState from '@/components/EmptyState.vue'
 
@@ -215,6 +263,9 @@ const resourceStates = reactive({
   TRAINER: createResourceState()
 })
 
+// Nexus 精选独立三态：接口失败或暂无数据都不影响手工资源的展示。
+const nexusState = reactive({ items: [], loading: false, error: false })
+
 // 请求序号：切换游戏时递增，用于丢弃上一个游戏晚到的响应，防止串数据。
 let requestSeq = 0
 
@@ -230,6 +281,17 @@ function resetResourceStates() {
     state.error = false
     state.loaded = false
   })
+}
+
+/**
+ * 重置 Nexus 精选区域，切换到另一款游戏时调用。
+ * 请求参数：无
+ * 返回参数：无
+ */
+function resetNexusState() {
+  nexusState.items = []
+  nexusState.loading = false
+  nexusState.error = false
 }
 
 /**
@@ -261,6 +323,29 @@ async function loadResources(type, force = false) {
 }
 
 /**
+ * 加载当前游戏的 Nexus 每日精选数据。
+ * 请求参数：无（读取 gameId 与请求序号）
+ * 返回参数：无；失败时仅标记 Nexus 区域不可用，手工资源列表不受影响
+ */
+async function loadNexusMods() {
+  const seq = requestSeq
+  nexusState.loading = true
+  nexusState.error = false
+  try {
+    const list = await getGameNexusMods(gameId.value, 20)
+    if (seq !== requestSeq) return
+    // 没有 modUrl 的脏数据无法跳转，直接过滤掉。
+    nexusState.items = list.map(normalizeNexusMod).filter((item) => item.modUrl)
+  } catch {
+    if (seq !== requestSeq) return
+    nexusState.items = []
+    nexusState.error = true
+  } finally {
+    if (seq === requestSeq) nexusState.loading = false
+  }
+}
+
+/**
  * Tab 切换时按需加载对应资源。
  * 请求参数：name —— 目标 Tab 的资源类型名
  * 返回参数：无
@@ -279,11 +364,13 @@ async function loadDetail() {
   detailLoading.value = true
   detailError.value = ''
   resetResourceStates()
+  resetNexusState()
   try {
     const data = await getGame(gameId.value)
     if (seq !== requestSeq) return
     game.value = normalizeGame(data)
     loadResources(activeTab.value)
+    loadNexusMods()
   } catch (error) {
     if (seq !== requestSeq) return
     game.value = null
