@@ -1,12 +1,12 @@
 package com.steamhub.client;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.steamhub.config.NexusProperties;
 import com.steamhub.entity.DTO.NexusModDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -165,7 +165,8 @@ public class NexusClient {
         dto.setName(firstText(node, "name", "mod_name"));
         dto.setAuthor(firstText(node, "author", "uploaded_by"));
         dto.setEndorsements(firstInt(node, "endorsement_count", "endorsements"));
-        dto.setDownloads(firstLong(node, "downloads", "download_count"));
+        // trending 接口的下载量字段名为 mod_downloads，兼容其它命名避免取不到值
+        dto.setDownloads(firstLong(node, "mod_downloads", "downloads", "download_count"));
         dto.setSummary(firstText(node, "summary", "description"));
         String modUrl = firstText(node, "mod_page_url");
         dto.setModUrl(modUrl == null ? String.format(MOD_PAGE_TEMPLATE, domain, modId) : modUrl);
@@ -224,7 +225,7 @@ public class NexusClient {
         for (String field : fields) {
             JsonNode value = node.get(field);
             if (value != null && !value.isNull()) {
-                String text = value.asText();
+                String text = value.asString();
                 if (text != null && !text.isBlank()) {
                     return text;
                 }
@@ -261,9 +262,9 @@ public class NexusClient {
             if (value.isNumber()) {
                 return value.asLong();
             }
-            if (value.isTextual()) {
+            if (value.isString()) {
                 try {
-                    return Long.parseLong(value.asText().trim());
+                    return Long.parseLong(value.asString().trim());
                 } catch (NumberFormatException ignored) {
                     // 字段存在但不是数字，继续尝试下一个候选名
                 }

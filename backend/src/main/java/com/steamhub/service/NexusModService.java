@@ -61,10 +61,12 @@ public class NexusModService {
         NexusModVO vo = new NexusModVO();
         vo.setModId(po.getModId());
         vo.setName(po.getName());
+        vo.setNameCn(po.getNameCn());
         vo.setAuthor(po.getAuthor());
         vo.setEndorsements(po.getEndorsements() == null ? 0 : po.getEndorsements());
         vo.setDownloads(po.getDownloads() == null ? 0L : po.getDownloads());
         vo.setSummary(po.getSummary());
+        vo.setSummaryCn(po.getSummaryCn());
         vo.setModUrl(po.getModUrl());
         vo.setSyncedAt(po.getSyncedAt());
         return vo;

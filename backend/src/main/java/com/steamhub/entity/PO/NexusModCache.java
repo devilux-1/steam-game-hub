@@ -27,6 +27,9 @@ public class NexusModCache {
     /** Mod 名称，非空 */
     private String name;
 
+    /** 中文标题，由 AI 翻译写入；为空时前端回退展示 name */
+    private String nameCn;
+
     /** Mod 作者，可空 */
     private String author;
 
@@ -38,6 +41,9 @@ public class NexusModCache {
 
     /** 简介，可空 */
     private String summary;
+
+    /** 中文简介，由 AI 翻译写入；为空时前端回退展示 summary */
+    private String summaryCn;
 
     /** Mod 页面地址，可空 */
     private String modUrl;

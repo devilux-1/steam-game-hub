@@ -9,11 +9,27 @@ server:
 spring:
   application:
     name: steam-game-hub
+  ai:
+    model:
+      chat: deepseek
+      embedding: none
+      image: none
+      moderation: none
+      audio:
+        speech: none
+        transcription: none
+    deepseek:
+      # 未配置时留空即可：占位符带默认值，缺 Key 只是不翻译，不会导致应用启动失败
+      api-key: ${DEEPSEEK_API_KEY:}
+      chat:
+        model: deepseek-flash
+        # 翻译要求稳定输出，温度调低
+        temperature: 0.2
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${DB_URL:jdbc:mysql://localhost:3306/steam_game_hub?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true}
-    username: ${DB_USERNAME:}
-    password: ${DB_PASSWORD:}
+    url: jdbc:mysql://localhost:3306/steam_game_hub?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USERNAME:}
+    password: ${MYSQL_PASSWORD:}
     hikari:
       # 单机部署，连接池按小站点规模配置
       maximum-pool-size: 10
@@ -62,3 +78,6 @@ nexus:
     max-mods-per-game: 20
     # 相邻请求间隔毫秒，降低触发 Nexus 限流的概率
     request-interval-ms: 700
+    # 单次翻译请求提交的 Mod 条数与相邻请求间隔（过大容易触发限流或超出单次输出上限）
+    translate-batch-size: 10
+    translate-interval-ms: 300

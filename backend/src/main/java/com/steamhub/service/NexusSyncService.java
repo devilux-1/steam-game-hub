@@ -45,6 +45,9 @@ public class NexusSyncService {
     /** Nexus 接口客户端 */
     private final NexusClient nexusClient;
 
+    /** Mod 汉化服务，把英文标题与简介翻译成中文 */
+    private final ModTranslationService modTranslationService;
+
     /** 是否已有任务在执行，用作并发开关 */
     private final AtomicBoolean running = new AtomicBoolean(false);
 
@@ -132,6 +135,7 @@ public class NexusSyncService {
         int success = 0;
         int failed = 0;
         int saved = 0;
+        int translated = 0;
         for (Game game : games) {
             try {
                 saved += syncOneGame(game.getNexusDomain(), game.getId());
@@ -145,6 +149,12 @@ public class NexusSyncService {
                 errors.add("domain=" + game.getNexusDomain() + " 未知错误：" + e.getMessage());
                 log.error("Nexus 同步出现未预期异常 gameId={}", game.getId(), e);
             }
+            // 汉化与同步解耦：翻译失败只丢中文，不影响本次同步结果
+            try {
+                translated += modTranslationService.translateGame(game.getId(), game.getNameCn());
+            } catch (Exception e) {
+                log.warn("Mod 汉化失败 gameId={} 原因={}", game.getId(), e.getMessage());
+            }
             sleepBetweenRequests();
         }
 
@@ -154,7 +164,8 @@ public class NexusSyncService {
         status.setLastEndAt(LocalDateTime.now());
         // 只保留前三条错误，避免状态接口返回过长文本
         status.setMessage(errors.isEmpty() ? null : String.join("；", errors.subList(0, Math.min(3, errors.size()))));
-        log.info("Nexus 同步结束：游戏 {} 个，成功 {}，失败 {}，写入 {} 条", games.size(), success, failed, saved);
+        log.info("Nexus 同步结束：游戏 {} 个，成功 {}，失败 {}，写入 {} 条，汉化 {} 条",
+                games.size(), success, failed, saved, translated);
     }
 
     /**

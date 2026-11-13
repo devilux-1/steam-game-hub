@@ -3,28 +3,43 @@
 /**
  * 把后端 NexusModVO 整理成视图可直接使用的固定结构。
  * 请求参数：mod —— 后端 NexusModVO，可为 null / undefined
- * 返回参数：{ modId, name, author, endorsements, downloads, summary, modUrl, syncedAt }；缺失字段为空串或 0
+ * 返回参数：{ modId, name, nameCn, author, endorsements, downloads, summary, summaryCn,
+ *          displayName, displaySummary, modUrl, syncedAt }；
+ *          display* 为展示用文案（有中文译文用中文，否则回退英文），缺失字段为空串或 0
  */
 export function normalizeNexusMod(mod) {
   if (!mod || typeof mod !== 'object') {
     return {
       modId: '',
       name: '',
+      nameCn: '',
       author: '',
       endorsements: 0,
       downloads: 0,
       summary: '',
+      summaryCn: '',
+      displayName: '',
+      displaySummary: '',
       modUrl: '',
       syncedAt: ''
     }
   }
+  const name = mod.name ?? ''
+  const nameCn = mod.nameCn ?? ''
+  const summary = mod.summary ?? ''
+  const summaryCn = mod.summaryCn ?? ''
   return {
     modId: mod.modId ?? '',
-    name: mod.name ?? '',
+    name,
+    nameCn,
     author: mod.author ?? '',
     endorsements: Number(mod.endorsements ?? 0) || 0,
     downloads: Number(mod.downloads ?? 0) || 0,
-    summary: mod.summary ?? '',
+    summary,
+    summaryCn,
+    // 译文缺失时回退英文，保证卡片永远有内容可展示
+    displayName: nameCn || name,
+    displaySummary: summaryCn || summary,
     modUrl: mod.modUrl ?? '',
     syncedAt: mod.syncedAt ?? ''
   }

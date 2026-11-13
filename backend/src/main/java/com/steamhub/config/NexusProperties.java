@@ -46,6 +46,12 @@ public class NexusProperties {
     /** 定时同步的 cron 表达式，默认每天凌晨 4 点 */
     private String cron = "0 0 4 * * ?";
 
+    /** 单次翻译请求提交的 Mod 条数，过大容易超出模型单次输出上限 */
+    private int translateBatchSize = 10;
+
+    /** 相邻两次翻译请求的间隔毫秒数，避免触发接口限流 */
+    private long translateIntervalMs = 300L;
+
     /**
      * 判断是否处于演示数据模式：显式开启 mock，或未配置 Key 时，均走内置数据。
      *

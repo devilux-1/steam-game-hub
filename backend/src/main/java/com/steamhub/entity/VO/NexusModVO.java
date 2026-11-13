@@ -20,6 +20,10 @@ public class NexusModVO {
     @Schema(description = "Mod 名称")
     private String name;
 
+    /** 中文标题，为空时前端回退展示 name */
+    @Schema(description = "中文标题，为空时前端回退显示 name")
+    private String nameCn;
+
     /** 作者 */
     @Schema(description = "作者")
     private String author;
@@ -35,6 +39,10 @@ public class NexusModVO {
     /** 简介 */
     @Schema(description = "简介")
     private String summary;
+
+    /** 中文简介，为空时前端回退展示 summary */
+    @Schema(description = "中文简介，为空时前端回退显示 summary")
+    private String summaryCn;
 
     /** Mod 详情页地址，前端新窗口打开 */
     @Schema(description = "Mod 详情页地址")

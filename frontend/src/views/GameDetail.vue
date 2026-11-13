@@ -111,8 +111,12 @@
                       <span class="nexus-card__badge">NEXUS 同步</span>
                       <span v-if="mod.author" class="nexus-card__author">{{ mod.author }}</span>
                     </header>
-                    <h4 class="nexus-card__title">{{ mod.name }}</h4>
-                    <p v-if="mod.summary" class="nexus-card__desc">{{ mod.summary }}</p>
+                    <h4 class="nexus-card__title">{{ mod.displayName }}</h4>
+                    <!-- 有译文时保留英文原名，方便用户按原名在 Nexus 站内检索 -->
+                    <p v-if="mod.nameCn && mod.nameCn !== mod.name" class="nexus-card__title-en">
+                      {{ mod.name }}
+                    </p>
+                    <p v-if="mod.displaySummary" class="nexus-card__desc">{{ mod.displaySummary }}</p>
                     <footer class="nexus-card__stats">
                       <span class="nexus-card__stat">
                         <span class="nexus-card__stat-label">赞</span>{{ formatNexusCount(mod.endorsements) }}

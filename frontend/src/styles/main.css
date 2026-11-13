@@ -1204,6 +1204,17 @@ img {
   line-height: 1.5;
 }
 
+/* 英文原名：副标题样式，单行省略，避免长标题把卡片撑高 */
+.nexus-card__title-en {
+  overflow: hidden;
+  margin-top: -4px;
+  color: var(--text-dim);
+  font-size: 11.5px;
+  line-height: 1.5;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* 简介最多两行，避免不同长度的摘要把网格卡片撑成参差高度 */
 .nexus-card__desc {
   display: -webkit-box;
