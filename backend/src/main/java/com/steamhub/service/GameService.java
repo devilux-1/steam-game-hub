@@ -88,7 +88,10 @@ public class GameService {
         }
         long resourceCount = countResources(List.of(id), true).getOrDefault(id, 0L);
         List<String> aliases = gameAliasMapper.selectAliasesByGameId(id);
-        return GameConverter.toDetailVO(po, resourceCount, aliases);
+        GameDetailVO detail = GameConverter.toDetailVO(po, resourceCount, aliases);
+        // Nexus 标识只在详情返回，供后台编辑回填，列表页无需展示
+        detail.setNexusDomain(po.getNexusDomain());
+        return detail;
     }
 
     /**

@@ -10,6 +10,7 @@ import com.steamhub.converter.ResourceConverter;
 import com.steamhub.entity.DTO.ResourceSaveDTO;
 import com.steamhub.entity.PO.Game;
 import com.steamhub.entity.PO.Resource;
+import com.steamhub.entity.VO.AdminResourceVO;
 import com.steamhub.entity.VO.ResourceVO;
 import com.steamhub.mapper.GameMapper;
 import com.steamhub.mapper.ResourceMapper;
@@ -74,18 +75,19 @@ public class ResourceService {
 
     /**
      * 后台分页查询资源，包含已下架数据。
+     * 返回后台专用 VO，带游戏 ID、排序权重与上下架状态，供编辑弹窗完整回填。
      *
      * @param gameId 游戏 ID，可空；为空时查询全部游戏的资源
      * @param page   页码，从 1 开始
      * @param size   每页条数，1-100
      * @return 分页结果
      */
-    public PageResult<ResourceVO> adminList(Long gameId, int page, int size) {
+    public PageResult<AdminResourceVO> adminList(Long gameId, int page, int size) {
         LambdaQueryWrapper<Resource> wrapper = new LambdaQueryWrapper<Resource>()
                 .eq(gameId != null, Resource::getGameId, gameId)
                 .orderByDesc(Resource::getId);
         IPage<Resource> pageResult = resourceMapper.selectPage(new Page<>(page, size), wrapper);
-        List<ResourceVO> list = pageResult.getRecords().stream().map(ResourceConverter::toVO).toList();
+        List<AdminResourceVO> list = pageResult.getRecords().stream().map(ResourceConverter::toAdminVO).toList();
         return PageResult.of(list, pageResult.getTotal(), page, size);
     }
 
@@ -108,21 +110,20 @@ public class ResourceService {
 
     /**
      * 后台编辑资源，path 中的 ID 优先于入参 ID。
+     * 采用增量更新：入参中为 null 的字段保留库中原值，避免后台表单未展示的字段（排序权重、上下架状态）被重置。
      *
      * @param id  资源 ID，非空
      * @param dto 资源入参，非空
      * @throws BizException 资源不存在（404）、所属游戏不存在（404）或类型非法（400）
      */
     public void update(Long id, ResourceSaveDTO dto) {
-        Resource exists = resourceMapper.selectById(id);
-        if (exists == null) {
+        Resource po = resourceMapper.selectById(id);
+        if (po == null) {
             throw new BizException(ErrorCode.NOT_FOUND, "资源不存在");
         }
         validateGameExists(dto.getGameId());
         validateType(dto.getType());
-        Resource po = new Resource();
-        po.setId(id);
-        copyEditableFields(dto, po);
+        applyEditableFields(dto, po);
         resourceMapper.updateById(po);
         log.info("编辑资源成功: id={}", id);
     }
@@ -183,25 +184,66 @@ public class ResourceService {
     }
 
     /**
-     * 把入参中的可编辑字段拷贝到 PO。
+     * 新增场景：把入参写入 PO，并为排序权重、上下架状态补默认值。
      *
      * @param dto 资源入参，非空
-     * @param po  目标 PO，非空
+     * @param po  新建的 PO，非空
      */
     private void copyEditableFields(ResourceSaveDTO dto, Resource po) {
-        po.setGameId(dto.getGameId());
-        po.setType(normalizeType(dto.getType()));
-        po.setTitle(trim(dto.getTitle()));
-        po.setVersion(trim(dto.getVersion()));
-        po.setCompatibleVersion(trim(dto.getCompatibleVersion()));
-        po.setAuthor(trim(dto.getAuthor()));
-        po.setSourceSite(trim(dto.getSourceSite()));
-        po.setSourceUrl(trim(dto.getSourceUrl()));
-        po.setDescription(trim(dto.getDescription()));
-        po.setInstallNote(trim(dto.getInstallNote()));
-        // 排序权重与上下架状态为空时给默认值，避免写入 null 违反非空约束
-        po.setSortWeight(dto.getSortWeight() == null ? 0 : dto.getSortWeight());
-        po.setStatus(dto.getStatus() == null ? STATUS_ONLINE : dto.getStatus());
+        applyEditableFields(dto, po);
+        // 新增时这两个字段允许不传，落库前补默认值以满足非空约束
+        if (po.getSortWeight() == null) {
+            po.setSortWeight(0);
+        }
+        if (po.getStatus() == null) {
+            po.setStatus(STATUS_ONLINE);
+        }
+    }
+
+    /**
+     * 编辑场景：只覆盖入参中非 null 的字段，为 null 的保留库中原值。
+     * 后台表单未展示排序权重与上下架状态时，不会因此把已下架资源重新上架或清零权重。
+     *
+     * @param dto 资源入参，非空
+     * @param po  已从库中查出的 PO，非空
+     */
+    private void applyEditableFields(ResourceSaveDTO dto, Resource po) {
+        if (dto.getGameId() != null) {
+            po.setGameId(dto.getGameId());
+        }
+        if (dto.getType() != null) {
+            po.setType(normalizeType(dto.getType()));
+        }
+        if (dto.getTitle() != null) {
+            po.setTitle(trim(dto.getTitle()));
+        }
+        if (dto.getVersion() != null) {
+            po.setVersion(trim(dto.getVersion()));
+        }
+        if (dto.getCompatibleVersion() != null) {
+            po.setCompatibleVersion(trim(dto.getCompatibleVersion()));
+        }
+        if (dto.getAuthor() != null) {
+            po.setAuthor(trim(dto.getAuthor()));
+        }
+        if (dto.getSourceSite() != null) {
+            po.setSourceSite(trim(dto.getSourceSite()));
+        }
+        if (dto.getSourceUrl() != null) {
+            po.setSourceUrl(trim(dto.getSourceUrl()));
+        }
+        if (dto.getDescription() != null) {
+            po.setDescription(trim(dto.getDescription()));
+        }
+        if (dto.getInstallNote() != null) {
+            po.setInstallNote(trim(dto.getInstallNote()));
+        }
+        if (dto.getSortWeight() != null) {
+            po.setSortWeight(dto.getSortWeight());
+        }
+        if (dto.getStatus() != null) {
+            po.setStatus(dto.getStatus());
+        }
     }
 
     /**

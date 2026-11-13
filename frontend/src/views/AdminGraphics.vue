@@ -2,7 +2,6 @@
 <template>
   <div class="page admin-page">
     <header class="page-head">
-      <p class="eyebrow">ADMIN · GRAPHICS</p>
       <h1 class="page-title">画质数据</h1>
       <p class="page-subtitle">维护画质选项、权重与各 GPU / 分辨率下的基准帧率。</p>
     </header>

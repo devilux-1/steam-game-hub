@@ -1,4 +1,4 @@
-// 路由表：公开页面与后台占位页面；后台访问控制由阶段 0 的本地占位令牌完成。
+// 路由表：公开页面与后台管理页面；后台访问控制依赖登录接口写入本地的令牌。
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '@/views/Home.vue'
 import GameDetail from '@/views/GameDetail.vue'
@@ -77,7 +77,7 @@ router.beforeEach((to, from, next) => {
   const pageTitle = to.meta.title
   document.title = pageTitle ? `${pageTitle} · 游戏百宝箱` : '游戏百宝箱'
 
-  // 占位鉴权：本地有令牌即视为已登录，真实校验由阶段 1 的后端接口负责。
+  // 本地令牌只做前端放行判断，令牌是否有效由管理端接口返回 401 时再校验。
   if (to.meta.requiresAdmin && !hasAdminToken()) {
     next({ name: 'admin-login', query: { redirect: to.fullPath } })
     return

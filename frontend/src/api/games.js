@@ -1,4 +1,4 @@
-// 游戏相关接口：搜索、详情、按类型取资源列表。
+// 游戏相关接口：搜索、详情、按类型取资源列表与资源点击计数。
 import http from './http'
 
 /**
@@ -31,7 +31,7 @@ export function searchGames(params = {}) {
 /**
  * 查询单个游戏详情。
  * 请求参数：id —— 游戏 ID，数字或数字字符串，非空
- * 返回参数：Promise，解析为游戏对象；游戏不存在时后端业务码非 0，由拦截器抛错
+ * 返回参数：Promise，解析为游戏对象（含 aliases 别名数组）；游戏不存在时后端返回 404
  */
 export function getGame(id) {
   return http.get(`/api/games/${id}`)
@@ -45,4 +45,14 @@ export function getGame(id) {
 export function getGameResources(id, type = '') {
   const params = type ? { type } : {}
   return http.get(`/api/games/${id}/resources`, { params }).then(normalizePage)
+}
+
+/**
+ * 上报一次资源点击，由后端累加点击量。
+ * 请求参数：id —— 资源 ID，数字或数字字符串，非空
+ * 返回参数：Promise，解析为 null；失败时抛出，由调用方决定是否继续跳转外链
+ */
+export function clickResource(id) {
+  // silent：点击计数失败不弹错误提示，避免打断「打开来源站」的主流程。
+  return http.post(`/api/resources/${id}/click`, null, { silent: true })
 }

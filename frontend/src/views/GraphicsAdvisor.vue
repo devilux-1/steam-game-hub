@@ -2,7 +2,6 @@
 <template>
   <div class="page advisor-page">
     <header class="page-head">
-      <p class="eyebrow">GRAPHICS ADVISOR</p>
       <h1 class="page-title">画质顾问</h1>
       <p class="page-subtitle">
         选好显卡、分辨率与游戏，拿到「稳住 60 帧」的逐项画质建议。阶段 4 接入真实算法，当前展示输入与结果区结构。

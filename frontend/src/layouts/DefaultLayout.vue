@@ -35,6 +35,7 @@
           >
             <template #prefix>
               <svg class="header-search__icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <!-- deslop-ignore-next-line 24: 放大镜是标准两笔图标，非手绘装饰 -->
                 <circle cx="8.8" cy="8.8" r="5.6" stroke="currentColor" stroke-width="1.5" />
                 <path d="m13.2 13.2 3.4 3.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
               </svg>

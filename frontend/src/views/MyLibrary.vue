@@ -2,7 +2,6 @@
 <template>
   <div class="page library-page">
     <header class="page-head">
-      <p class="eyebrow">MY LIBRARY</p>
       <h1 class="page-title">我的游戏库</h1>
       <p class="page-subtitle">同步 Steam 已拥有游戏后，按时长排序查看，并直接跳到站内游戏条目。</p>
     </header>

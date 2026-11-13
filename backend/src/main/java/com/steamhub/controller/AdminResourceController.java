@@ -3,7 +3,7 @@ package com.steamhub.controller;
 import com.steamhub.common.PageResult;
 import com.steamhub.common.Result;
 import com.steamhub.entity.DTO.ResourceSaveDTO;
-import com.steamhub.entity.VO.ResourceVO;
+import com.steamhub.entity.VO.AdminResourceVO;
 import com.steamhub.service.ResourceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -46,9 +46,9 @@ public class AdminResourceController {
      */
     @GetMapping
     @Operation(summary = "后台资源列表")
-    public Result<PageResult<ResourceVO>> list(@RequestParam(required = false) Long gameId,
-                                               @RequestParam(defaultValue = "1") @Min(1) int page,
-                                               @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
+    public Result<PageResult<AdminResourceVO>> list(@RequestParam(required = false) Long gameId,
+                                                    @RequestParam(defaultValue = "1") @Min(1) int page,
+                                                    @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
         return Result.success(resourceService.adminList(gameId, page, size));
     }
 

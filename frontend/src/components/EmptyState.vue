@@ -1,26 +1,6 @@
 <!-- 通用空状态：用于无数据、接口未接入或占位说明，操作按钮通过 actions 插槽扩展。 -->
 <template>
   <div class="empty-state">
-    <span class="empty-state__icon" aria-hidden="true">
-      <svg viewBox="0 0 48 48" fill="none">
-        <rect x="7.5" y="7.5" width="33" height="33" rx="8" stroke="currentColor" stroke-width="1.4" opacity="0.35" />
-        <path
-          d="M18.5 29.5h11M24 15.5v9"
-          stroke="currentColor"
-          stroke-width="1.6"
-          stroke-linecap="round"
-          opacity="0.25"
-        />
-        <path
-          d="M17 19.5h14a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H17a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z"
-          stroke="currentColor"
-          stroke-width="1.5"
-        />
-        <path d="M19.5 19.5v-1.8a4.5 4.5 0 0 1 9 0v1.8" stroke="currentColor" stroke-width="1.5" />
-        <circle cx="20.5" cy="25" r="1" fill="currentColor" />
-        <circle cx="27.5" cy="25" r="1" fill="currentColor" />
-      </svg>
-    </span>
     <p v-if="tag" class="empty-state__tag">{{ tag }}</p>
     <h3 class="empty-state__title">{{ title }}</h3>
     <p v-if="description" class="empty-state__desc">{{ description }}</p>

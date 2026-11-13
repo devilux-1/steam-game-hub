@@ -17,4 +17,8 @@ public class GameDetailVO extends GameVO {
     /** 别名列表，如「老头环」；无别名时为空列表而非 null */
     @Schema(description = "别名列表")
     private List<String> aliases;
+
+    /** Nexus 的 URL 标识，如 eldenring；后台编辑需要回填，故在详情中返回 */
+    @Schema(description = "Nexus 的 URL 标识")
+    private String nexusDomain;
 }

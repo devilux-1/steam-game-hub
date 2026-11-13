@@ -7,7 +7,37 @@
       <span class="breadcrumb__current">{{ game?.nameCn || game?.nameEn || `游戏 #${gameId}` }}</span>
     </nav>
 
-    <section class="detail-hero">
+    <!-- 详情加载中：用骨架屏占住头部结构，避免页面高度跳动。 -->
+    <section v-if="detailLoading" class="detail-hero" aria-label="游戏详情加载中">
+      <div class="detail-cover detail-skeleton"></div>
+      <div class="detail-info">
+        <div class="detail-skeleton detail-skeleton--title"></div>
+        <div class="detail-skeleton detail-skeleton--line"></div>
+        <div class="detail-skeleton detail-skeleton--line detail-skeleton--short"></div>
+      </div>
+    </section>
+
+    <!-- 详情失败：404 与接口异常的文案和操作不同，分开展示。 -->
+    <section v-else-if="detailError" class="detail-fallback">
+      <EmptyState
+        :tag="detailError === 'notFound' ? '404' : '接口异常'"
+        :title="detailError === 'notFound' ? '这款游戏不存在' : '游戏详情加载失败'"
+        :description="
+          detailError === 'notFound'
+            ? '链接可能已失效，或这款游戏还没有收录到站内。返回首页看看其它游戏。'
+            : '与后端的连接尚未建立，或接口返回异常。确认后端已启动后可重新加载。'
+        "
+      >
+        <template #actions>
+          <button v-if="detailError !== 'notFound'" type="button" class="btn btn--ghost" @click="loadDetail">
+            重新加载
+          </button>
+          <router-link class="btn btn--ghost" to="/">返回首页</router-link>
+        </template>
+      </EmptyState>
+    </section>
+
+    <section v-else class="detail-hero">
       <div class="detail-cover" :class="{ 'detail-cover--empty': !game?.coverUrl }">
         <img v-if="game?.coverUrl" :src="game.coverUrl" :alt="game.nameCn || game.nameEn" />
         <svg v-else viewBox="0 0 64 64" fill="none" aria-hidden="true">
@@ -17,16 +47,17 @@
       </div>
 
       <div class="detail-info">
-        <p class="eyebrow">GAME PROFILE</p>
         <h1 class="detail-title">{{ game?.nameCn || game?.nameEn || `游戏 #${gameId}` }}</h1>
-        <p class="detail-en">{{ game?.nameEn || '英文名待接入' }}</p>
-        <p class="detail-summary">
-          {{ game?.summary || '游戏简介将在阶段 1 接入后端后展示；当前页面为骨架占位。' }}
-        </p>
+        <p class="detail-en">{{ game?.nameEn || 'NO ENGLISH TITLE' }}</p>
+        <p class="detail-summary">{{ game?.summary || '暂无简介。' }}</p>
 
-        <p v-if="loadError" class="inline-note">
-          <span class="inline-note__dot"></span>
-          游戏详情接口暂不可用，页面使用占位内容
+        <div v-if="game?.aliases.length" class="detail-aliases" aria-label="游戏别名">
+          <span v-for="alias in game.aliases" :key="alias" class="detail-alias">{{ alias }}</span>
+        </div>
+
+        <p class="detail-meta">
+          <span v-if="game?.releaseDate">发售 {{ formatDate(game.releaseDate) }}</span>
+          <span>收录 {{ game?.resourceCount ?? 0 }} 条资源</span>
         </p>
 
         <div class="detail-actions">
@@ -38,19 +69,81 @@
       </div>
     </section>
 
-    <section class="resource-section">
+    <section v-if="!detailLoading && !detailError" class="resource-section">
       <header class="section-head">
         <div>
-          <p class="eyebrow">RESOURCES</p>
           <h2 class="section-title">资源聚合</h2>
         </div>
         <p class="section-meta">外链直达来源站 · 本站不托管文件</p>
       </header>
 
-      <el-tabs v-model="activeTab" class="resource-tabs">
+      <el-tabs v-model="activeTab" class="resource-tabs" @tab-change="onTabChange">
         <el-tab-pane v-for="tab in tabs" :key="tab.name" :label="tab.label" :name="tab.name">
           <div class="resource-panel">
-            <EmptyState :tag="tab.tag" :title="tab.title" :description="tab.description" />
+            <div v-if="resourceStates[tab.name].loading" class="resource-loading" aria-label="资源加载中">
+              <div v-for="row in 3" :key="row" class="resource-loading__row"></div>
+            </div>
+
+            <EmptyState
+              v-else-if="resourceStates[tab.name].error"
+              tag="接口异常"
+              title="资源列表加载失败"
+              description="与后端的连接尚未建立，或接口返回异常。确认后端已启动后可重新加载。"
+            >
+              <template #actions>
+                <button type="button" class="btn btn--ghost" @click="loadResources(tab.name, true)">重新加载</button>
+              </template>
+            </EmptyState>
+
+            <div v-else-if="resourceStates[tab.name].items.length" class="resource-list">
+              <article
+                v-for="item in resourceStates[tab.name].items"
+                :key="item.id"
+                class="resource-card"
+                role="link"
+                tabindex="0"
+                :aria-label="`打开资源：${item.title}`"
+                @click="openResource(item)"
+                @keydown.enter.prevent="openResource(item)"
+                @keydown.space.prevent="openResource(item)"
+              >
+                <header class="resource-card__head">
+                  <h3 class="resource-card__title">{{ item.title }}</h3>
+                  <span class="resource-card__clicks">{{ item.clickCount }} 次点击</span>
+                </header>
+
+                <p v-if="item.description" class="resource-card__desc">{{ item.description }}</p>
+
+                <dl class="resource-card__meta">
+                  <div>
+                    <dt>版本</dt>
+                    <dd>{{ item.version || '—' }}</dd>
+                  </div>
+                  <div>
+                    <dt>适配版本</dt>
+                    <dd>{{ item.compatibleVersion || '—' }}</dd>
+                  </div>
+                  <div>
+                    <dt>作者</dt>
+                    <dd>{{ item.author || '—' }}</dd>
+                  </div>
+                  <div>
+                    <dt>来源</dt>
+                    <dd>{{ item.sourceSite || '—' }}</dd>
+                  </div>
+                  <div>
+                    <dt>更新</dt>
+                    <dd>{{ formatDateTime(item.updatedAt) || '—' }}</dd>
+                  </div>
+                </dl>
+
+                <p v-if="item.installNote" class="resource-card__note">安装要点：{{ item.installNote }}</p>
+                <span class="resource-card__go">打开来源站 ↗</span>
+              </article>
+            </div>
+
+            <EmptyState v-else :tag="tab.tag" :title="tab.emptyTitle" :description="tab.emptyDesc" />
+
             <p class="resource-panel__foot">{{ tab.foot }}</p>
           </div>
         </el-tab-pane>
@@ -60,62 +153,159 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getGame } from '@/api/games'
+import { getGame, getGameResources, clickResource } from '@/api/games'
 import { normalizeGame } from '@/utils/game'
+import { normalizeResource } from '@/utils/resource'
+import { formatDate, formatDateTime } from '@/utils/format'
 import EmptyState from '@/components/EmptyState.vue'
 
 const route = useRoute()
 const router = useRouter()
 
 const gameId = computed(() => String(route.params.id ?? ''))
-const loadError = ref(false)
+const detailLoading = ref(false)
+// '' 表示正常，notFound 表示 404，error 表示网络或服务异常。
+const detailError = ref('')
 const game = ref(null)
 const activeTab = ref('NEXUS_MOD')
 
-// 三个 Tab 与设计文档 F1 的资源类型一一对应；空状态文案说明各自后续接入阶段。
+// 三个 Tab 与设计文档 F1 的资源类型一一对应；空状态文案说明该游戏暂未收录的原因。
 const tabs = [
   {
     name: 'NEXUS_MOD',
     label: 'Nexus Mod',
-    tag: 'STAGE 2',
-    title: '暂无 Nexus Mod',
-    description: 'Nexus 上的热门 Mod 会在阶段 2 同步到站内。Nexus 下载需要登录账号，跳转后可能先落到 Nexus 登录页。',
-    foot: '资源卡片上线后展示：名称、作者、版本、适配游戏版本、更新日期、来源站与点击计数。'
+    tag: '暂无收录',
+    emptyTitle: '暂无 Nexus Mod',
+    emptyDesc: '这款游戏还没有收录 Nexus Mod。Nexus 下载需要登录账号，跳转后可能先落到 Nexus 登录页。',
+    foot: '外链直达 Nexus 页面，本站不托管任何文件。'
   },
   {
     name: 'HANZI_PATCH',
     label: '汉化补丁',
-    tag: '待录入',
-    title: '暂无汉化补丁',
-    description: '汉化补丁由人工录入，这款游戏还没有收录。补丁可能随游戏版本失效，请以来源站说明为准。',
-    foot: '补丁上线后展示：汉化组、版本、适配游戏版本、更新日期与安装要点。'
+    tag: '暂无收录',
+    emptyTitle: '暂无汉化补丁',
+    emptyDesc: '这款游戏还没有收录汉化补丁。补丁可能随游戏版本失效，请以来源站说明为准。',
+    foot: '外链直达汉化组页面，安装前请核对适配版本。'
   },
   {
     name: 'TRAINER',
     label: '风灵月影',
-    tag: '待录入',
-    title: '暂无风灵月影修改器',
-    description: '该游戏还没有收录风灵月影修改器，后续会按游戏热度补充。修改器仅适用于单机模式。',
-    foot: '修改器上线后展示：版本、适配游戏版本、更新时间与来源站直达链接。'
+    tag: '暂无收录',
+    emptyTitle: '暂无风灵月影修改器',
+    emptyDesc: '这款游戏还没有收录风灵月影修改器，后续会按游戏热度补充。修改器仅适用于单机模式。',
+    foot: '外链直达风灵月影官网页面，仅限单机模式使用。'
   }
 ]
 
 /**
- * 加载当前路由对应的游戏详情，失败时降级为路由 ID 占位。
- * 请求参数：无（读取 gameId）
+ * 创建单个 Tab 的资源列表状态。
+ * 请求参数：无
+ * 返回参数：{ items 资源数组, loading 加载中, error 接口失败, loaded 是否已成功加载过 }
+ */
+function createResourceState() {
+  return { items: [], loading: false, error: false, loaded: false }
+}
+
+// 三个 Tab 独立维护加载态与数据，切换时按需请求并缓存，避免重复请求后端。
+const resourceStates = reactive({
+  NEXUS_MOD: createResourceState(),
+  HANZI_PATCH: createResourceState(),
+  TRAINER: createResourceState()
+})
+
+// 请求序号：切换游戏时递增，用于丢弃上一个游戏晚到的响应，防止串数据。
+let requestSeq = 0
+
+/**
+ * 重置三个 Tab 的资源状态，切换到另一款游戏时调用。
+ * 请求参数：无
  * 返回参数：无
  */
-async function loadGame() {
-  loadError.value = false
+function resetResourceStates() {
+  Object.values(resourceStates).forEach((state) => {
+    state.items = []
+    state.loading = false
+    state.error = false
+    state.loaded = false
+  })
+}
+
+/**
+ * 加载指定类型的资源列表，已成功加载过则直接复用缓存。
+ * 请求参数：type —— 资源类型 NEXUS_MOD / HANZI_PATCH / TRAINER；force —— 是否忽略缓存强制重查，默认 false
+ * 返回参数：无；失败时标记该 Tab 的 error 由页面展示重试入口
+ */
+async function loadResources(type, force = false) {
+  const state = resourceStates[type]
+  if (!state) return
+  if (state.loading || (state.loaded && !force)) return
+
+  const seq = requestSeq
+  state.loading = true
+  state.error = false
   try {
-    game.value = normalizeGame(await getGame(gameId.value))
+    const { items } = await getGameResources(gameId.value, type)
+    // 游戏已切换时丢弃旧响应，避免把上一款游戏的资源写进当前页面。
+    if (seq !== requestSeq) return
+    state.items = items.map(normalizeResource).filter((item) => item.id !== '')
+    state.loaded = true
   } catch {
-    // 后端未启动或数据未录入时保留页面结构，用 ID 和占位文案继续展示。
-    game.value = null
-    loadError.value = true
+    if (seq !== requestSeq) return
+    state.error = true
+    state.items = []
+  } finally {
+    if (seq === requestSeq) state.loading = false
   }
+}
+
+/**
+ * Tab 切换时按需加载对应资源。
+ * 请求参数：name —— 目标 Tab 的资源类型名
+ * 返回参数：无
+ */
+function onTabChange(name) {
+  loadResources(name)
+}
+
+/**
+ * 加载当前路由对应的游戏详情，并在成功后加载默认 Tab 的资源。
+ * 请求参数：无（读取 gameId）
+ * 返回参数：无；404 与其它异常分别标记，交给页面展示不同提示
+ */
+async function loadDetail() {
+  const seq = ++requestSeq
+  detailLoading.value = true
+  detailError.value = ''
+  resetResourceStates()
+  try {
+    const data = await getGame(gameId.value)
+    if (seq !== requestSeq) return
+    game.value = normalizeGame(data)
+    loadResources(activeTab.value)
+  } catch (error) {
+    if (seq !== requestSeq) return
+    game.value = null
+    detailError.value = error?.response?.status === 404 ? 'notFound' : 'error'
+  } finally {
+    if (seq === requestSeq) detailLoading.value = false
+  }
+}
+
+/**
+ * 点击资源卡片：先上报点击量，再在新窗口打开来源站。
+ * 请求参数：item —— 已归一化的资源对象，需含 id 与 sourceUrl
+ * 返回参数：无；点击统计失败不影响跳转，保证外链始终可用
+ */
+async function openResource(item) {
+  if (!item?.sourceUrl) return
+  try {
+    await clickResource(item.id)
+  } catch {
+    // 计数失败不阻断跳转：资源直达是主流程，统计只是辅助数据。
+  }
+  window.open(item.sourceUrl, '_blank')
 }
 
 /**
@@ -138,6 +328,6 @@ function goAdvisor() {
   router.push({ name: 'graphics-advisor', params: { id: gameId.value } })
 }
 
-// 同一组件在 /games/1 与 /games/2 之间切换时重新拉取详情。
-watch(() => route.params.id, loadGame, { immediate: true })
+// 同一组件在 /games/1 与 /games/2 之间切换时重新拉取详情与资源。
+watch(() => route.params.id, loadDetail, { immediate: true })
 </script>

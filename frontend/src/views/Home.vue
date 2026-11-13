@@ -1,9 +1,8 @@
-<!-- 首页：主搜索入口、站内统计、热门游戏占位与搜索结果为空时的引导。 -->
+<!-- 首页：主搜索入口、站内统计、搜索结果与热门游戏列表。 -->
 <template>
   <div class="page home-page">
     <section class="hero">
       <div class="hero__content">
-        <p class="eyebrow">STEAM 单机资源聚合</p>
         <h1 class="hero__title">一个游戏，<span class="hero__title-accent">一页</span>找齐。</h1>
         <p class="hero__desc">
           Nexus Mod、汉化补丁、风灵月影修改器按游戏聚合，再配一份「稳 60 帧」的画质建议。本站只做外链跳转，不托管任何文件。
@@ -20,6 +19,7 @@
           >
             <template #prefix>
               <svg class="hero-search__icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <!-- deslop-ignore-next-line 24: 放大镜是标准两笔图标，非手绘装饰 -->
                 <circle cx="8.8" cy="8.8" r="5.6" stroke="currentColor" stroke-width="1.5" />
                 <path d="m13.2 13.2 3.4 3.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
               </svg>
@@ -54,11 +54,10 @@
       </div>
     </section>
 
-    <!-- 搜索结果区：有搜索词时替换热门占位，区分加载中、接口失败与确实无结果。 -->
+    <!-- 搜索结果区：有搜索词时替换热门列表，区分加载中、接口失败与确实无结果。 -->
     <section v-if="searched" class="section">
       <header class="section-head">
         <div>
-          <p class="eyebrow">SEARCH RESULT</p>
           <h2 class="section-title">「{{ keyword }}」的搜索结果</h2>
         </div>
         <p v-if="!searching && !searchError" class="section-meta">共 {{ searchResult.total }} 条</p>
@@ -73,11 +72,16 @@
         tag="接口异常"
         title="搜索服务暂不可用"
         description="与后端的连接尚未建立，或接口返回异常。确认后端已启动后，重新提交搜索即可。"
-      />
+      >
+        <template #actions>
+          <button type="button" class="btn btn--ghost" @click="runSearch(keyword)">重新搜索</button>
+        </template>
+      </EmptyState>
 
       <div v-else-if="resultGames.length" class="game-grid">
         <router-link v-for="item in resultGames" :key="item.id" :to="`/games/${item.id}`" class="game-card">
           <div class="game-card__cover">
+            <span class="game-card__count">{{ item.resourceCount }} 资源</span>
             <img v-if="item.coverUrl" :src="item.coverUrl" :alt="item.nameCn || item.nameEn" loading="lazy" />
             <svg v-else viewBox="0 0 64 64" fill="none" aria-hidden="true">
               <rect x="13" y="19" width="38" height="27" rx="9" stroke="currentColor" stroke-width="1.6" />
@@ -100,38 +104,65 @@
       />
     </section>
 
-    <!-- 热门游戏占位：阶段 0 固定展示，阶段 1 接入真实热度排序后替换。 -->
+    <!-- 热门游戏：进页面即拉取第一页游戏，后端按资源数排序。 -->
     <section v-else class="section">
       <header class="section-head">
         <div>
-          <p class="eyebrow">HOT GAMES</p>
           <h2 class="section-title">热门游戏</h2>
         </div>
-        <p class="section-meta">占位数据 · 阶段 1 接入热度排序</p>
+        <p class="section-meta">
+          <template v-if="hotLoading">加载中…</template>
+          <template v-else-if="hotError">接口异常</template>
+          <template v-else>按资源数排序 · 共 {{ hotTotal }} 款</template>
+        </p>
       </header>
 
-      <div class="game-grid">
-        <router-link
-          v-for="item in hotGames"
-          :key="item.id"
-          :to="`/games/${item.id}`"
-          class="game-card game-card--placeholder"
-        >
+      <div v-if="hotLoading" class="game-grid" aria-label="热门游戏加载中">
+        <div v-for="row in 6" :key="row" class="game-card game-card--skeleton" aria-hidden="true">
+          <div class="game-card__cover"></div>
+          <div class="game-card__body">
+            <span class="skeleton-line skeleton-line--title"></span>
+            <span class="skeleton-line"></span>
+            <span class="skeleton-line skeleton-line--short"></span>
+          </div>
+        </div>
+      </div>
+
+      <EmptyState
+        v-else-if="hotError"
+        tag="接口异常"
+        title="热门游戏加载失败"
+        description="与后端的连接尚未建立，或接口返回异常。确认后端已启动后可重新加载。"
+      >
+        <template #actions>
+          <button type="button" class="btn btn--ghost" @click="loadHotGames">重新加载</button>
+        </template>
+      </EmptyState>
+
+      <div v-else-if="hotGames.length" class="game-grid">
+        <router-link v-for="item in hotGames" :key="item.id" :to="`/games/${item.id}`" class="game-card">
           <div class="game-card__cover">
-            <span class="game-card__badge">占位</span>
-            <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+            <span class="game-card__count">{{ item.resourceCount }} 资源</span>
+            <img v-if="item.coverUrl" :src="item.coverUrl" :alt="item.nameCn || item.nameEn" loading="lazy" />
+            <svg v-else viewBox="0 0 64 64" fill="none" aria-hidden="true">
               <rect x="13" y="19" width="38" height="27" rx="9" stroke="currentColor" stroke-width="1.6" />
               <path d="M23 32.5h5M25.5 30v5M39 30.5h.2M44 34h.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
             </svg>
-            <span class="game-card__watermark">DATA PENDING</span>
           </div>
           <div class="game-card__body">
-            <h3 class="game-card__title">{{ item.title }}</h3>
-            <p class="game-card__en">{{ item.en }}</p>
-            <p class="game-card__tag">{{ item.tag }}</p>
+            <h3 class="game-card__title">{{ item.nameCn || item.nameEn || '未命名游戏' }}</h3>
+            <p class="game-card__en">{{ item.nameEn || 'NO ENGLISH TITLE' }}</p>
+            <p class="game-card__tag">{{ item.summary || '暂无简介' }}</p>
           </div>
         </router-link>
       </div>
+
+      <EmptyState
+        v-else
+        tag="暂无收录"
+        title="站内还没有收录游戏"
+        description="后台录入游戏与资源后，热门榜会自动出现在这里。"
+      />
     </section>
   </div>
 </template>
@@ -157,15 +188,11 @@ const searchResult = ref({ items: [], total: 0 })
 // 统计数字：接口失败时保持 null，模板统一显示「--」。
 const stats = reactive({ gameCount: null, resourceCount: null })
 
-// 热门游戏为阶段 0 占位，名称用于撑起页面结构，点击进入对应占位条目页。
-const hotGames = [
-  { id: 1, title: '艾尔登法环', en: 'ELDEN RING', tag: '开放世界 · 魂系' },
-  { id: 2, title: '赛博朋克 2077', en: 'CYBERPUNK 2077', tag: '开放世界 · RPG' },
-  { id: 3, title: '博德之门 3', en: "BALDUR'S GATE 3", tag: 'CRPG · 回合制' },
-  { id: 4, title: '黑神话：悟空', en: 'BLACK MYTH: WUKONG', tag: '动作 · 神话' },
-  { id: 5, title: '荒野大镖客 2', en: 'RED DEAD REDEMPTION 2', tag: '开放世界 · 西部' },
-  { id: 6, title: '星露谷物语', en: 'STARDEW VALLEY', tag: '模拟经营 · 像素' }
-]
+// 热门游戏取搜索接口无关键词的第一页，后端按资源数排序。
+const hotGames = ref([])
+const hotTotal = ref(0)
+const hotLoading = ref(false)
+const hotError = ref(false)
 
 /**
  * 搜索结果中可展示的游戏列表。
@@ -214,6 +241,27 @@ async function loadStats() {
     // 统计接口不可用属于可降级场景：保留占位符，不影响首页其它内容。
     stats.gameCount = null
     stats.resourceCount = null
+  }
+}
+
+/**
+ * 加载热门游戏列表（无关键词的第一页数据）。
+ * 请求参数：无
+ * 返回参数：无；失败时标记 hotError，由页面展示接口异常状态
+ */
+async function loadHotGames() {
+  hotLoading.value = true
+  hotError.value = false
+  try {
+    const { items, total } = await searchGames({ keyword: '', page: 1, size: 12 })
+    hotGames.value = items.map(normalizeGame).filter((item) => item.id !== '')
+    hotTotal.value = total
+  } catch {
+    hotError.value = true
+    hotGames.value = []
+    hotTotal.value = 0
+  } finally {
+    hotLoading.value = false
   }
 }
 
@@ -275,6 +323,9 @@ watch(
   { immediate: true }
 )
 
-// 首页挂载时拉取统计数字；接口不可用不阻塞页面渲染。
-onMounted(loadStats)
+// 首页挂载时并行拉取统计与热门游戏；任一接口不可用都不阻塞页面渲染。
+onMounted(() => {
+  loadStats()
+  loadHotGames()
+})
 </script>
