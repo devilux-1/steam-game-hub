@@ -7,6 +7,12 @@ import { hasAdminToken } from '@/utils/adminAuth'
 const routes = [
   { path: '/', name: 'home', component: Home, meta: { title: '首页' } },
   {
+    path: '/games',
+    name: 'game-list',
+    component: () => import('@/views/GameList.vue'),
+    meta: { title: '全部游戏' }
+  },
+  {
     path: '/games/:id',
     name: 'game-detail',
     component: () => import('@/views/GameDetail.vue'),

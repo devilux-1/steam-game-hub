@@ -187,7 +187,8 @@ public class GameService {
 
         List<Game> records = pageResult.getRecords();
         if (records.isEmpty()) {
-            return PageResult.empty(query.getPage(), query.getSize());
+            // 页码超出范围时仍要返回真实总数，前端才能据此提示「共 N 款」并引导回第一页
+            return PageResult.of(List.of(), pageResult.getTotal(), query.getPage(), query.getSize());
         }
         List<Long> gameIds = records.stream().map(Game::getId).toList();
         Map<Long, Long> countMap = countResources(gameIds, onlyOnline);

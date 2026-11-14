@@ -109,11 +109,14 @@
         <div>
           <h2 class="section-title">热门游戏</h2>
         </div>
-        <p class="section-meta">
-          <template v-if="hotLoading">加载中…</template>
-          <template v-else-if="hotError">接口异常</template>
-          <template v-else>按资源数排序 · 共 {{ hotTotal }} 款</template>
-        </p>
+        <div class="section-head__aside">
+          <p class="section-meta">
+            <template v-if="hotLoading">加载中…</template>
+            <template v-else-if="hotError">接口异常</template>
+            <template v-else>按资源数排序 · 共 {{ hotTotal }} 款</template>
+          </p>
+          <router-link class="section-more" to="/games">更多 ›</router-link>
+        </div>
       </header>
 
       <div v-if="hotLoading" class="game-grid" aria-label="热门游戏加载中">
@@ -328,3 +331,23 @@ onMounted(() => {
   loadHotGames()
 })
 </script>
+
+<style scoped>
+/* 区块头右侧：统计文案与「更多」入口并排，不挤压左侧标题 */
+.section-head__aside {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.section-more {
+  color: var(--text-soft);
+  font-size: 13px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.section-more:hover {
+  color: var(--accent);
+}
+</style>
