@@ -330,7 +330,7 @@ Tab 为空时展示引导文案，不留空白。
 ### 11.3 阶段 3 与阶段 5 实现说明
 
 - **Steam 登录**：`check_authentication` 重放回调参数时必须排除 `openid.mode`（重复的 mode 会被按 id_res 解析而判签名无效）；本地代理隧道只支持 HTTP/1.1，HttpClient 需固定 `Version.HTTP_1_1`，否则握手被中断
-- **游戏库详情**：匹配到站内条目的跳 `/games/{id}`；未匹配的跳 `/library/{appid}`，封面回落到 `cdn.cloudflare.steamstatic.com/steam/apps/{appid}/header.jpg`，简介与截图按需拉 Steam 商店接口，进程内缓存 24 小时（失败缓存 10 分钟）
+- **游戏库详情**：同步时把未收录的游戏自动补录进 `game` 表（英文名 + AppID + Steam 头图，`name_cn` / `summary` 留空待补），因此库内每一项都会打开站内资源聚合页；补录失败或旧数据未刷新时走 `/library/{appid}` 兜底页。库列表封面统一回落到 `cdn.cloudflare.steamstatic.com/steam/apps/{appid}/header.jpg`
 - **前端体积**：除首页外全部路由懒加载，Element Plus 与 Vue 运行时拆独立 chunk，业务入口由 1134KB 降到约 20KB
 
 ## 12. 外部依赖

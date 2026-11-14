@@ -113,6 +113,6 @@ npm run dev
 
 **Steam 登录**：OpenID 2.0 校验通过后写入 httpOnly Cookie；`steamcommunity.com` 在国内多数网络下被劫持，需在 `application-local.yml` 配置本地代理（`steam.proxy-host` / `steam.proxy-port`），Web API 本身可直连。
 
-**游戏库**：同步后按 `game.steam_appid` 匹配站内条目；匹配到的跳站内条目页，未匹配的走 `/library/{appid}`，封面回落到 Steam 头图，简介与截图按需从 Steam 商店接口拉取并缓存 24 小时。
+**游戏库**：同步时先按 `game.steam_appid` 匹配，未收录的游戏会自动补录进 `game` 表（英文名 + AppID + Steam 头图，中文名与简介留空待后台补全），因此库内每一项都能打开站内资源聚合页；补录失败或旧数据未刷新时走 `/library/{appid}` 兜底页，引导回游戏库重新同步。
 
 **前端体积**：除首页外全部路由按需加载，Element Plus 与 Vue 运行时拆成独立 chunk，业务入口约 20KB。

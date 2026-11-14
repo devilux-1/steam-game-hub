@@ -36,9 +36,6 @@ public class SteamStoreClient {
     /** 商店详情页地址前缀，用于拼给前端的「在 Steam 商店打开」链接 */
     private static final String STORE_APP_URL = "https://store.steampowered.com/app/";
 
-    /** 截图最多保留张数，避免单页塞入过多大图 */
-    private static final int MAX_SCREENSHOTS = 8;
-
     /** Steam 配置 */
     private final SteamProperties properties;
 
@@ -122,21 +119,6 @@ public class SteamStoreClient {
                 }
             }
             vo.setGenres(labels);
-        }
-
-        JsonNode screenshots = data.get("screenshots");
-        if (screenshots != null && screenshots.isArray()) {
-            List<String> urls = new ArrayList<>();
-            for (JsonNode item : screenshots) {
-                String path = text(item, "path_full");
-                if (path != null) {
-                    urls.add(path);
-                }
-                if (urls.size() >= MAX_SCREENSHOTS) {
-                    break;
-                }
-            }
-            vo.setScreenshots(urls);
         }
 
         JsonNode releaseDate = data.get("release_date");

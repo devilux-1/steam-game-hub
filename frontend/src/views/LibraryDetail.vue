@@ -1,4 +1,4 @@
-<!-- 库内游戏详情：库内数据 + 站内条目匹配 + Steam 商店简介与截图，未收录的游戏也有完整页面。 -->
+<!-- 库内游戏兜底页：库内游戏还没生成站内条目时展示，引导回游戏库重新同步。 -->
 <template>
   <div class="page library-detail-page">
     <nav class="detail-breadcrumb" aria-label="面包屑">
@@ -67,22 +67,14 @@
         </div>
       </div>
 
-      <section v-if="screenshots.length" class="detail-gallery">
-        <h2 class="section-title">游戏截图</h2>
-        <div class="detail-gallery__grid">
-          <img
-            v-for="(shot, index) in screenshots"
-            :key="shot"
-            :src="shot"
-            :alt="`${displayName} 截图 ${index + 1}`"
-            loading="lazy"
-          />
-        </div>
+      <section class="detail-pending">
+        <h2 class="section-title">资源聚合</h2>
+        <p class="detail-pending__text">
+          这款游戏已从你的 Steam 库同步，站内条目还没生成（通常是库数据未刷新）。
+          回到游戏库点「重新同步」后，它就会像其他游戏一样打开资源聚合页。
+        </p>
+        <router-link class="btn btn--primary" to="/me/library">返回游戏库重新同步</router-link>
       </section>
-
-      <p v-else-if="!detail.store" class="detail-fallback-note">
-        Steam 商店信息暂时获取失败，可能是网络原因或该游戏在所在区域没有商店页。
-      </p>
     </template>
   </div>
 </template>
@@ -118,9 +110,6 @@ const displayName = computed(
 
 /** 类型标签列表，无数据时为空数组 */
 const genres = computed(() => detail.value?.store?.genres ?? [])
-
-/** 截图地址列表，无数据时为空数组 */
-const screenshots = computed(() => detail.value?.store?.screenshots ?? [])
 
 /**
  * Steam 商店地址：优先用接口返回的地址，取不到时按 appid 拼一个。
@@ -195,34 +184,19 @@ onMounted(() => {
   color: var(--accent);
 }
 
-/* 截图区：两列自适应网格，大图等比裁切 */
-.detail-gallery {
+/* 收录提示区：说明为什么还没有资源列表 */
+.detail-pending {
   margin-top: 28px;
-}
-
-.detail-gallery__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 14px;
-  margin-top: 14px;
-}
-
-.detail-gallery__grid img {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-  border-radius: var(--radius-lg, 14px);
-  border: 1px solid var(--line, rgba(255, 255, 255, 0.1));
-  background: rgba(10, 6, 24, 0.55);
-}
-
-/* 商店信息拉取失败时的兜底说明 */
-.detail-fallback-note {
-  margin-top: 22px;
-  padding: 14px 16px;
+  padding: 22px 24px;
   border: 1px dashed var(--line-strong, rgba(255, 255, 255, 0.16));
   border-radius: var(--radius-lg, 14px);
+  background: rgba(10, 6, 24, 0.35);
+}
+
+.detail-pending__text {
+  margin: 10px 0 16px;
   color: var(--text-dim);
   font-size: 13px;
+  line-height: 1.8;
 }
 </style>

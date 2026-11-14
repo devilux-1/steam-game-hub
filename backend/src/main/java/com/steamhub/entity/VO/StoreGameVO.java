@@ -34,10 +34,6 @@ public class StoreGameVO {
     @Schema(description = "类型标签")
     private List<String> genres = new ArrayList<>();
 
-    /** 截图地址列表，最多 8 张 */
-    @Schema(description = "截图地址列表")
-    private List<String> screenshots = new ArrayList<>();
-
     /** 发售日期文案，Steam 已格式化，如「2016 年 2 月 26 日」 */
     @Schema(description = "发售日期")
     private String releaseDate;

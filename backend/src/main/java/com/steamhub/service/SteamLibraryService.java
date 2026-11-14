@@ -16,6 +16,7 @@ import com.steamhub.mapper.GameMapper;
 import com.steamhub.mapper.UserLibraryMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -96,7 +97,7 @@ public class SteamLibraryService {
                     "Steam 未返回游戏数据，请把「隐私设置 → 游戏详情」设为公开后再试");
         }
 
-        Map<Integer, Game> matched = matchGames(games);
+        Map<Integer, Game> matched = collectMissingGames(games);
         LocalDateTime now = LocalDateTime.now();
         userLibraryMapper.delete(new LambdaQueryWrapper<UserLibrary>()
                 .eq(UserLibrary::getUserId, user.getId()));
@@ -107,8 +108,7 @@ public class SteamLibraryService {
             UserLibrary row = new UserLibrary();
             row.setUserId(user.getId());
             row.setAppid(dto.getAppid());
-            row.setTitle(dto.getName() == null || dto.getName().isBlank()
-                    ? "App " + dto.getAppid() : dto.getName());
+            row.setTitle(titleOf(dto));
             row.setPlaytimeForever(dto.getPlaytimeForever() == null ? 0 : dto.getPlaytimeForever());
             row.setPlaytime2weeks(dto.getPlaytime2weeks() == null ? 0 : dto.getPlaytime2weeks());
             row.setLastPlayedAt(dto.getLastPlayedAt());
@@ -261,6 +261,56 @@ public class SteamLibraryService {
             map.put(game.getSteamAppid(), game);
         }
         return map;
+    }
+
+    /**
+     * 匹配站内条目，并把库里尚未收录的游戏补录进 game 表。
+     * 补录只填 Steam 能提供的字段（英文名、AppID、头图），中文名与简介留空，由后台或后续同步补充。
+     *
+     * @param games Steam 库数据，非空
+     * @return AppID 到站内游戏的映射，覆盖全部有 AppID 的游戏
+     */
+    private Map<Integer, Game> collectMissingGames(List<SteamOwnedGameDTO> games) {
+        Map<Integer, Game> matched = matchGames(games);
+        int created = 0;
+        for (SteamOwnedGameDTO dto : games) {
+            Integer appid = dto.getAppid();
+            if (appid == null || appid <= 0 || matched.containsKey(appid)) {
+                continue;
+            }
+            Game game = new Game();
+            game.setNameEn(titleOf(dto));
+            game.setSteamAppid(appid);
+            game.setCoverUrl(STEAM_HEADER_BASE + appid + "/header.jpg");
+            try {
+                gameMapper.insert(game);
+                created++;
+            } catch (DuplicateKeyException e) {
+                // 多人同时同步时该条目可能已被别的请求插入，回查复用即可
+                Game existing = gameMapper.selectOne(new LambdaQueryWrapper<Game>()
+                        .eq(Game::getSteamAppid, appid)
+                        .last("limit 1"));
+                if (existing == null) {
+                    continue;
+                }
+                game = existing;
+            }
+            matched.put(appid, game);
+        }
+        if (created > 0) {
+            log.info("Steam 库同步补录站内条目 {} 款", created);
+        }
+        return matched;
+    }
+
+    /**
+     * 取 Steam 游戏名，缺失时用 AppID 兜底。
+     *
+     * @param dto 单条 Steam 库数据，非空
+     * @return 非空的名称
+     */
+    private String titleOf(SteamOwnedGameDTO dto) {
+        return dto.getName() == null || dto.getName().isBlank() ? "App " + dto.getAppid() : dto.getName();
     }
 
     /**
