@@ -21,6 +21,9 @@ public class SteamProperties {
     /** Steam Web API 基础地址 */
     private String apiBaseUrl = "https://api.steampowered.com";
 
+    /** Steam 商店详情接口地址，用于给未收录的库内游戏补简介与截图 */
+    private String storeApiUrl = "https://store.steampowered.com/api/appdetails";
+
     /** 登录回调地址，必须是浏览器可访问的地址，Steam 校验通过后回跳到这里 */
     private String callbackUrl = "http://localhost:8080/api/auth/steam/callback";
 

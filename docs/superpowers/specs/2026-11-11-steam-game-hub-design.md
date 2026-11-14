@@ -295,9 +295,9 @@ Tab 为空时展示引导文案，不留空白。
 | 0 | 工程骨架、数据库建表、统一响应与异常、前后端联调通路 | 2 天 | 已完成 |
 | 1 | F1 F2 F3 + 后台 F9 基础 CRUD + 种子数据 | 1 周 | 已完成 |
 | 2 | Nexus 数据同步与缓存 | 3 天 | 已完成（真实 Key 待申请，当前为演示数据模式） |
-| 3 | F4 F5 F6 Steam 登录与库同步 | 1 周 | 未开始（依赖外网与 Steam API Key） |
+| 3 | F4 F5 F6 Steam 登录与库同步 | 1 周 | 已完成 |
 | 4 | 画质顾问（已砍掉） | — | 已取消 |
-| 5 | 打磨与部署 | 3 天 | 未开始 |
+| 5 | 打磨与部署 | 3 天 | 打磨已完成，部署待做 |
 
 ### 11.1 阶段 1 实现说明
 
@@ -326,6 +326,12 @@ Tab 为空时展示引导文案，不留空白。
 - `GET /api/games/{id}/nexus-mods?limit=20`（公开，返回点赞数倒序的缓存数据）
 - `POST /api/admin/sync/nexus`（异步触发，立即返回 `started`）
 - `GET /api/admin/sync/nexus/status`（轮询进度）
+
+### 11.3 阶段 3 与阶段 5 实现说明
+
+- **Steam 登录**：`check_authentication` 重放回调参数时必须排除 `openid.mode`（重复的 mode 会被按 id_res 解析而判签名无效）；本地代理隧道只支持 HTTP/1.1，HttpClient 需固定 `Version.HTTP_1_1`，否则握手被中断
+- **游戏库详情**：匹配到站内条目的跳 `/games/{id}`；未匹配的跳 `/library/{appid}`，封面回落到 `cdn.cloudflare.steamstatic.com/steam/apps/{appid}/header.jpg`，简介与截图按需拉 Steam 商店接口，进程内缓存 24 小时（失败缓存 10 分钟）
+- **前端体积**：除首页外全部路由懒加载，Element Plus 与 Vue 运行时拆独立 chunk，业务入口由 1134KB 降到约 20KB
 
 ## 12. 外部依赖
 

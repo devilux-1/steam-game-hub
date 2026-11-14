@@ -41,6 +41,16 @@ export function getMyLibrary(params) {
 }
 
 /**
+ * 查询库内某款游戏的详情（站内信息 + Steam 商店信息）。
+ * 请求参数：appid —— Steam AppID，数字或数字字符串，非空
+ * 返回参数：Promise，解析为 { appid, title, playtimeForever, ..., coverUrl, store }；不在库中时后端返回 404
+ */
+export function getLibraryItem(appid) {
+  // silent：未登录 / 不在库中都属于页面自己要展示的状态，不弹全局提示
+  return http.get(`/api/me/library/${appid}`, { silent: true })
+}
+
+/**
  * 清空我的游戏库数据。
  * 请求参数：无
  * 返回参数：Promise，成功即库已被清空

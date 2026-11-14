@@ -1,11 +1,7 @@
 // 路由表：公开页面与后台管理页面；后台访问控制依赖登录接口写入本地的令牌。
+// 除首页外的页面全部按需加载，首屏只下载首页所需代码，减小首次打开的包体积。
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '@/views/Home.vue'
-import GameDetail from '@/views/GameDetail.vue'
-import MyLibrary from '@/views/MyLibrary.vue'
-import AdminLogin from '@/views/AdminLogin.vue'
-import AdminGames from '@/views/AdminGames.vue'
-import AdminResources from '@/views/AdminResources.vue'
 import { hasAdminToken } from '@/utils/adminAuth'
 
 const routes = [
@@ -13,31 +9,37 @@ const routes = [
   {
     path: '/games/:id',
     name: 'game-detail',
-    component: GameDetail,
+    component: () => import('@/views/GameDetail.vue'),
     meta: { title: '游戏条目' }
+  },
+  {
+    path: '/library/:appid',
+    name: 'library-detail',
+    component: () => import('@/views/LibraryDetail.vue'),
+    meta: { title: '我的游戏' }
   },
   {
     path: '/me/library',
     name: 'my-library',
-    component: MyLibrary,
+    component: () => import('@/views/MyLibrary.vue'),
     meta: { title: '我的游戏库' }
   },
   {
     path: '/admin/login',
     name: 'admin-login',
-    component: AdminLogin,
+    component: () => import('@/views/AdminLogin.vue'),
     meta: { title: '管理员登录' }
   },
   {
     path: '/admin/games',
     name: 'admin-games',
-    component: AdminGames,
+    component: () => import('@/views/AdminGames.vue'),
     meta: { title: '游戏管理', requiresAdmin: true }
   },
   {
     path: '/admin/resources',
     name: 'admin-resources',
-    component: AdminResources,
+    component: () => import('@/views/AdminResources.vue'),
     meta: { title: '资源管理', requiresAdmin: true }
   },
   // 未匹配路径回首页，避免骨架阶段出现空白页。

@@ -91,7 +91,12 @@
       />
 
       <div v-else class="library-list">
-        <article v-for="item in items" :key="item.appid" class="library-item">
+        <article
+          v-for="item in items"
+          :key="item.appid"
+          class="library-item library-item--clickable"
+          @click="openItem(item)"
+        >
           <img v-if="item.coverUrl" class="library-item__cover" :src="item.coverUrl" alt="" loading="lazy" />
           <div v-else class="library-item__cover library-item__cover--empty" aria-hidden="true"></div>
 
@@ -110,10 +115,13 @@
             </span>
           </div>
 
-          <router-link v-if="item.gameId" class="library-item__link" :to="`/games/${item.gameId}`">
-            查看条目
+          <router-link
+            class="library-item__link"
+            :to="item.gameId ? `/games/${item.gameId}` : `/library/${item.appid}`"
+            @click.stop
+          >
+            {{ item.gameId ? '查看条目' : '查看详情' }}
           </router-link>
-          <span v-else class="library-item__link library-item__link--muted">站内暂无</span>
         </article>
       </div>
     </template>
@@ -230,6 +238,19 @@ async function onClear() {
 }
 
 /**
+ * 打开库内某款游戏的详情：站内已收录跳条目页，未收录跳 Steam 信息页。
+ * 请求参数：item —— 库列表项，需含 gameId 与 appid
+ * 返回参数：无
+ */
+function openItem(item) {
+  if (item.gameId) {
+    router.push(`/games/${item.gameId}`)
+  } else {
+    router.push(`/library/${item.appid}`)
+  }
+}
+
+/**
  * 处理登录回跳带来的 query 参数并清理地址栏。
  * 请求参数：无（读取 route.query.login）
  * 返回参数：无
@@ -274,4 +295,16 @@ onUnmounted(() => {
   window.removeEventListener('library:sync', onLibrarySyncEvent)
 })
 </script>
+
+<style scoped>
+/* 整行可点：提示可点击，并给键盘聚焦留出可见轮廓 */
+.library-item--clickable {
+  cursor: pointer;
+}
+
+.library-item--clickable:focus-within {
+  outline: 2px solid var(--accent-line, rgba(139, 92, 246, 0.6));
+  outline-offset: 2px;
+}
+</style>
 

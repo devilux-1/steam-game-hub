@@ -2,6 +2,7 @@ package com.steamhub.controller;
 
 import com.steamhub.common.Result;
 import com.steamhub.entity.PO.AppUser;
+import com.steamhub.entity.VO.LibraryDetailVO;
 import com.steamhub.entity.VO.LibraryItemVO;
 import com.steamhub.entity.VO.LibrarySummaryVO;
 import com.steamhub.entity.VO.LibraryVO;
@@ -13,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -80,5 +82,19 @@ public class UserController {
         List<LibraryItemVO> items = steamLibraryService.list(user.getId(), sort, filter);
         vo.setItems(items);
         return Result.success(vo);
+    }
+
+    /**
+     * 查询库内某款游戏的详情，未收录的站内条目会补充 Steam 商店信息。
+     *
+     * @param appid   Steam AppID，非空，路径参数
+     * @param request 当前请求，用于解析登录态
+     * @return 库内详情；该 AppID 不在当前用户库中时返回 404
+     */
+    @GetMapping("/me/library/{appid}")
+    @Operation(summary = "库内游戏详情")
+    public Result<LibraryDetailVO> detail(@PathVariable Integer appid, HttpServletRequest request) {
+        AppUser user = userAuthService.requireUser(request);
+        return Result.success(steamLibraryService.detail(user.getId(), appid));
     }
 }

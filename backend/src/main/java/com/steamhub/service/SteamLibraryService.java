@@ -9,6 +9,7 @@ import com.steamhub.entity.DTO.SteamOwnedGameDTO;
 import com.steamhub.entity.PO.AppUser;
 import com.steamhub.entity.PO.Game;
 import com.steamhub.entity.PO.UserLibrary;
+import com.steamhub.entity.VO.LibraryDetailVO;
 import com.steamhub.entity.VO.LibraryItemVO;
 import com.steamhub.entity.VO.LibrarySummaryVO;
 import com.steamhub.mapper.GameMapper;
@@ -46,6 +47,9 @@ public class SteamLibraryService {
     /** 筛选条件：只看从未游玩 */
     private static final String FILTER_UNPLAYED = "unplayed";
 
+    /** Steam 头图地址前缀，未收录进站内条目的库内游戏用它补封面 */
+    private static final String STEAM_HEADER_BASE = "https://cdn.cloudflare.steamstatic.com/steam/apps/";
+
     /** Steam 配置 */
     private final SteamProperties properties;
 
@@ -57,6 +61,9 @@ public class SteamLibraryService {
 
     /** 游戏表数据访问接口，用于按 AppID 匹配站内条目 */
     private final GameMapper gameMapper;
+
+    /** Steam 商店信息缓存服务，用于补全未收录游戏的简介与截图 */
+    private final SteamStoreService steamStoreService;
 
     /** 各用户最近一次成功同步时间，仅用于进程内限流，重启后重置 */
     private final Map<Long, Instant> lastSyncAt = new ConcurrentHashMap<>();
@@ -180,6 +187,38 @@ public class SteamLibraryService {
     }
 
     /**
+     * 查询库内某款游戏的详情：库记录 + 站内条目匹配 + Steam 商店信息。
+     *
+     * @param userId 用户主键，非空
+     * @param appid  Steam AppID，非空
+     * @return 详情对象；Steam 商店信息拉不到时 store 字段为 null
+     * @throws BizException 该 AppID 不在当前用户库中时（错误码 404）
+     */
+    public LibraryDetailVO detail(Long userId, Integer appid) {
+        UserLibrary row = userLibraryMapper.selectOne(new LambdaQueryWrapper<UserLibrary>()
+                .eq(UserLibrary::getUserId, userId)
+                .eq(UserLibrary::getAppid, appid)
+                .last("limit 1"));
+        if (row == null) {
+            throw new BizException(ErrorCode.NOT_FOUND, "你的游戏库里没有这款游戏，请先同步 Steam 库");
+        }
+        Game game = row.getGameId() == null ? null : gameMapper.selectById(row.getGameId());
+        LibraryDetailVO vo = new LibraryDetailVO();
+        vo.setAppid(row.getAppid());
+        vo.setTitle(row.getTitle());
+        vo.setPlaytimeForever(row.getPlaytimeForever() == null ? 0 : row.getPlaytimeForever());
+        vo.setPlaytime2weeks(row.getPlaytime2weeks() == null ? 0 : row.getPlaytime2weeks());
+        vo.setLastPlayedAt(row.getLastPlayedAt());
+        vo.setCoverUrl(resolveCover(row.getAppid(), game));
+        if (game != null) {
+            vo.setGameId(game.getId());
+            vo.setGameNameCn(game.getNameCn());
+        }
+        vo.setStore(steamStoreService.get(appid));
+        return vo;
+    }
+
+    /**
      * 检查同步冷却，未到间隔直接拒绝。
      *
      * @param userId 用户主键，非空
@@ -260,8 +299,23 @@ public class SteamLibraryService {
         Game game = row.getGameId() == null ? null : gameMap.get(row.getGameId());
         if (game != null) {
             vo.setGameNameCn(game.getNameCn());
-            vo.setCoverUrl(game.getCoverUrl());
         }
+        // 未收录进站内条目的游戏同样要有封面，统一回落到 Steam 头图
+        vo.setCoverUrl(resolveCover(row.getAppid(), game));
         return vo;
+    }
+
+    /**
+     * 解析库内游戏的封面地址：站内封面优先，没有则回落到 Steam 头图。
+     *
+     * @param appid Steam AppID，可空
+     * @param game  匹配到的站内游戏，可空
+     * @return 封面地址；appid 非法且无站内封面时返回 null
+     */
+    private String resolveCover(Integer appid, Game game) {
+        if (game != null && game.getCoverUrl() != null && !game.getCoverUrl().isBlank()) {
+            return game.getCoverUrl();
+        }
+        return appid == null || appid <= 0 ? null : STEAM_HEADER_BASE + appid + "/header.jpg";
     }
 }
