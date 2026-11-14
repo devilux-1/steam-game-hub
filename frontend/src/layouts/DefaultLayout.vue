@@ -1,5 +1,13 @@
-<!-- 站点默认布局：顶部导航、页面出口与站点页脚。 -->
+<!-- 站点默认布局：全站背景、顶部导航、页面出口与站点页脚。 -->
 <template>
+  <!-- 全站背景：浅蓝灰渐变、超大 GAME VAULT 水印、右下同心环与颗粒，玻璃面板从这层背后取色 -->
+  <div class="site-bg" aria-hidden="true">
+    <span class="site-bg__glow"></span>
+    <span class="site-bg__rings"></span>
+    <span class="site-bg__word">GAME VAULT</span>
+    <span class="site-bg__grain"></span>
+  </div>
+
   <div class="app-shell">
     <header class="site-header">
       <div class="site-header__inner">

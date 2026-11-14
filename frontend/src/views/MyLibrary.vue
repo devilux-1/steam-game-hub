@@ -1,4 +1,4 @@
-﻿<!-- 我的游戏库：未登录引导 → 已登录未同步 → 统计卡 + 可排序筛选的库列表。 -->
+<!-- 我的游戏库：未登录引导 → 已登录未同步 → 统计卡 + 可排序筛选的库列表。 -->
 <template>
   <div class="page library-page">
     <header class="page-head">
@@ -303,7 +303,7 @@ onUnmounted(() => {
 }
 
 .library-item--clickable:focus-within {
-  outline: 2px solid var(--accent-line, rgba(139, 92, 246, 0.6));
+  outline: 2px solid var(--accent-line, rgba(29, 78, 216, 0.35));
   outline-offset: 2px;
 }
 </style>

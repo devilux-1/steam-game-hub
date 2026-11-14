@@ -188,9 +188,9 @@ onMounted(() => {
 .detail-pending {
   margin-top: 28px;
   padding: 22px 24px;
-  border: 1px dashed var(--line-strong, rgba(255, 255, 255, 0.16));
+  border: 1px dashed var(--line-strong, rgba(23, 35, 58, 0.22));
   border-radius: var(--radius-lg, 14px);
-  background: rgba(10, 6, 24, 0.35);
+  background: var(--surface, rgba(255, 255, 255, 0.5));
 }
 
 .detail-pending__text {

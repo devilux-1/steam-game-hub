@@ -471,34 +471,34 @@ watch(() => route.params.id, loadDetail, { immediate: true })
 .zh-support {
   margin-bottom: 18px;
   padding: 14px 16px;
-  border: 1px solid var(--line, rgba(255, 255, 255, 0.12));
+  border: 1px solid var(--line, rgba(23, 35, 58, 0.12));
   border-left-width: 3px;
   border-radius: var(--radius-lg, 14px);
-  background: rgba(10, 6, 24, 0.42);
+  background: var(--surface, rgba(255, 255, 255, 0.5));
 }
 
 .zh-support--ok {
-  border-left-color: #34d399;
+  border-left-color: #059669;
 }
 
 .zh-support--warn {
-  border-left-color: #fbbf24;
+  border-left-color: #d97706;
 }
 
 .zh-support--none {
-  border-left-color: #f87171;
+  border-left-color: #dc2626;
 }
 
 .zh-support__title {
   margin: 0;
-  color: var(--text, #f5f3ff);
+  color: var(--text, #16233a);
   font-size: 14px;
   font-weight: 600;
 }
 
 .zh-support__desc {
   margin: 6px 0 0;
-  color: var(--text-dim, rgba(245, 243, 255, 0.62));
+  color: var(--text-dim, #66768e);
   font-size: 13px;
   line-height: 1.8;
 }
@@ -506,7 +506,7 @@ watch(() => route.params.id, loadDetail, { immediate: true })
 .zh-support__link {
   display: inline-block;
   margin-top: 10px;
-  color: var(--accent, #a78bfa);
+  color: var(--accent, #1d4ed8);
   font-size: 13px;
   text-decoration: none;
 }

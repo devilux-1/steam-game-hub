@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>游戏百宝箱 · 背景配色方案预览</title>
     <!--
-      背景配色选型样稿：直接复用 frontend/src/styles/main.css 与站内真实文案、封面，
-      只替换背景层与配套强调色，用于确认「换哪套底色」。不接路由、不调接口。
-      底部切换条可逐版对比：当前紫夜 / A 深空靛蓝 / B 曜石黑金 / C 墨玉青 / D 石墨纯黑 / E 晨雾浅色。
+      背景配色选型样稿：复用 frontend/src/styles/main.css 的布局与站内真实文案、封面，
+      只替换背景层与配套强调色。「E 晨雾浅色」已落地线上，本页保留六版作换色参考；
+      其中「当前紫夜」用页面自带 token 冻结了切换前的深紫基线，不随 main.css 变化。
+      不接路由、不调接口。
     -->
     <link rel="stylesheet" href="../../frontend/src/styles/main.css" />
     <style>
@@ -64,10 +65,41 @@
 
       /* --------------------------------------------------------------------
          2. 品牌色 token 化
-         取值与 main.css 第 14 节一致（当前紫夜为默认值），仅把硬编码换成变量，
-         这样每套方案只需给变量赋值就能整站换色。
+         切换前的紫夜基线以本页自带 token 还原，不再依赖 main.css 的当前主题；
+         A~E 各方案覆盖同名变量即可整页换色。
          -------------------------------------------------------------------- */
       :root {
+        color-scheme: dark;
+
+        --bg-base: #1a0f33;
+        --bg-soft: #120a24;
+        --surface: rgba(122, 90, 214, 0.12);
+        --surface-raised: rgba(150, 116, 255, 0.18);
+        --line: rgba(199, 181, 255, 0.12);
+        --line-strong: rgba(199, 181, 255, 0.26);
+
+        --text: #f6f2ff;
+        --text-soft: #c9bce8;
+        --text-dim: #9585b6;
+
+        --accent: #8b5cf6;
+        --accent-bright: #a78bfa;
+        --accent-soft: rgba(139, 92, 246, 0.18);
+        --accent-line: rgba(139, 92, 246, 0.44);
+        --accent-2: #67e8f9;
+        --danger: #fb7185;
+
+        --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.07), rgba(126, 92, 255, 0.08) 45%, rgba(76, 44, 140, 0.14));
+        --glass-bg-strong: linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(126, 92, 255, 0.12) 42%, rgba(76, 44, 140, 0.2));
+        --glass-border: rgba(255, 255, 255, 0.14);
+        --glass-border-top: rgba(255, 255, 255, 0.36);
+        --glass-border-left: rgba(255, 255, 255, 0.22);
+
+        --shadow-card: 0 28px 70px -40px rgba(5, 0, 20, 0.9);
+        --shadow-glass:
+          0 30px 80px -42px rgba(5, 0, 20, 0.95),
+          0 4px 18px rgba(5, 0, 20, 0.3);
+
         --accent-grad: linear-gradient(135deg, #a78bfa 0%, #7c3aed 55%, #6d28d9 100%);
         --accent-grad-hover: linear-gradient(135deg, #b9a1ff 0%, #8b5cf6 52%, #7c3aed 100%);
         --on-accent: #ffffff;
@@ -110,6 +142,23 @@
         --scroll-thumb-hover: #4c3a78;
         --selection: rgba(139, 92, 246, 0.35);
         --dot-ring: rgba(255, 255, 255, 0.35);
+      }
+
+      /* 紫夜基线的背景层：main.css 已换成浅色主题，这里单独冻结切色前的深紫渐变 */
+      html[data-theme='current'] .site-bg {
+        background:
+          radial-gradient(55% 45% at 12% -8%, rgba(192, 132, 252, 0.5), transparent 68%),
+          radial-gradient(48% 40% at 90% -4%, rgba(99, 102, 241, 0.35), transparent 70%),
+          radial-gradient(60% 50% at 72% 108%, rgba(109, 40, 217, 0.4), transparent 72%),
+          linear-gradient(160deg, #2a1452 0%, #1d0f38 46%, #150b2a 100%);
+        box-shadow: inset 0 0 260px 40px rgba(4, 0, 14, 0.45);
+      }
+
+      html[data-theme='current'] .site-bg__glow {
+        background:
+          radial-gradient(26% 24% at 22% 18%, rgba(217, 70, 239, 0.22), transparent 70%),
+          radial-gradient(24% 22% at 78% 12%, rgba(59, 130, 246, 0.18), transparent 70%),
+          radial-gradient(34% 30% at 58% 98%, rgba(139, 92, 246, 0.24), transparent 72%);
       }
 
       .btn--primary {
