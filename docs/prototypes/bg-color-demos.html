@@ -1,0 +1,1085 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="current">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>游戏百宝箱 · 背景配色方案预览</title>
+    <!--
+      背景配色选型样稿：直接复用 frontend/src/styles/main.css 与站内真实文案、封面，
+      只替换背景层与配套强调色，用于确认「换哪套底色」。不接路由、不调接口。
+      底部切换条可逐版对比：当前紫夜 / A 深空靛蓝 / B 曜石黑金 / C 墨玉青 / D 石墨纯黑 / E 晨雾浅色。
+    -->
+    <link rel="stylesheet" href="../../frontend/src/styles/main.css" />
+    <style>
+      /* ====================================================================
+         演示页样式
+         1. 补齐 Element Plus 结构样式（演示页不引入组件库，只用同名标记）
+         2. 把 main.css 第 14 节里写死的品牌色收敛成变量，换色只改 token
+         3. 六套配色的 token
+         4. 底部方案切换条
+         ==================================================================== */
+
+      /* --------------------------------------------------------------------
+         1. Element Plus 结构样式：只补布局，颜色仍由 main.css 与 token 决定
+         -------------------------------------------------------------------- */
+      .el-input {
+        display: inline-flex;
+        width: 100%;
+      }
+
+      .el-input__wrapper {
+        display: inline-flex;
+        flex: 1;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .el-input__prefix {
+        display: inline-flex;
+        align-items: center;
+      }
+
+      .el-input__inner {
+        flex: 1;
+        min-width: 0;
+        height: 100%;
+        padding: 0;
+        border: 0;
+        outline: none;
+        background: transparent;
+        color: var(--text);
+        font: inherit;
+      }
+
+      .el-input__inner::placeholder {
+        color: var(--text-dim);
+      }
+
+      /* 没有 Element Plus 的 is-focus 类，改用 :focus-within 还原聚焦描边 */
+      .el-input__wrapper:focus-within {
+        box-shadow:
+          inset 0 0 0 1px var(--accent),
+          0 0 0 3px var(--accent-soft) !important;
+      }
+
+      /* --------------------------------------------------------------------
+         2. 品牌色 token 化
+         取值与 main.css 第 14 节一致（当前紫夜为默认值），仅把硬编码换成变量，
+         这样每套方案只需给变量赋值就能整站换色。
+         -------------------------------------------------------------------- */
+      :root {
+        --accent-grad: linear-gradient(135deg, #a78bfa 0%, #7c3aed 55%, #6d28d9 100%);
+        --accent-grad-hover: linear-gradient(135deg, #b9a1ff 0%, #8b5cf6 52%, #7c3aed 100%);
+        --on-accent: #ffffff;
+        --accent-glow: rgba(124, 58, 237, 0.8);
+        --accent-glow-hover: rgba(139, 92, 246, 0.9);
+        --accent-halo: rgba(139, 92, 246, 0.35);
+        --btn-border: rgba(255, 255, 255, 0.22);
+
+        --hero-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(124, 92, 255, 0.14) 42%, rgba(64, 36, 120, 0.24));
+        --hero-shadow:
+          0 40px 100px -50px rgba(5, 0, 20, 0.95),
+          0 8px 26px rgba(5, 0, 20, 0.35);
+        --title-shadow: 0 10px 40px rgba(10, 0, 30, 0.45);
+        --card-hover-shadow:
+          0 36px 80px -40px rgba(5, 0, 20, 0.95),
+          0 0 34px -8px rgba(139, 92, 246, 0.3);
+
+        --control-bg: rgba(8, 4, 20, 0.42);
+        --control-border: rgba(255, 255, 255, 0.12);
+        --control-tint: rgba(139, 92, 246, 0.16);
+        --ghost-border: rgba(255, 255, 255, 0.14);
+        --ghost-bg: rgba(255, 255, 255, 0.045);
+
+        --cover-bg: rgba(10, 6, 24, 0.55);
+        --chip-bg: rgba(8, 4, 20, 0.62);
+        --chip-border: rgba(255, 255, 255, 0.16);
+
+        --grid-line: rgba(255, 255, 255, 0.035);
+        --watermark: rgba(255, 255, 255, 0.035);
+        --watermark-stroke: rgba(255, 255, 255, 0.06);
+        --bg-word-stroke: rgba(255, 255, 255, 0.055);
+        --ring-color: rgba(255, 255, 255, 0.055);
+        --grain-opacity: 0.32;
+        --grain-blend: soft-light;
+        --divider: rgba(255, 255, 255, 0.1);
+        --footer-line: rgba(255, 255, 255, 0.1);
+
+        --scroll-track: #0e071d;
+        --scroll-thumb: #3a2a5e;
+        --scroll-thumb-hover: #4c3a78;
+        --selection: rgba(139, 92, 246, 0.35);
+        --dot-ring: rgba(255, 255, 255, 0.35);
+      }
+
+      .btn--primary {
+        border-color: var(--btn-border);
+        background: var(--accent-grad);
+        color: var(--on-accent);
+        box-shadow:
+          0 16px 38px -16px var(--accent-glow),
+          inset 0 1px 0 rgba(255, 255, 255, 0.28);
+        text-shadow: none;
+      }
+
+      .btn--primary:hover:not(:disabled) {
+        background: var(--accent-grad-hover);
+        box-shadow:
+          0 20px 46px -18px var(--accent-glow-hover),
+          inset 0 1px 0 rgba(255, 255, 255, 0.34);
+      }
+
+      .btn--ghost {
+        border-color: var(--ghost-border);
+        background: var(--ghost-bg);
+      }
+
+      .brand__mark {
+        background: var(--accent-grad);
+        color: var(--on-accent);
+        box-shadow:
+          0 10px 30px -10px var(--accent-glow),
+          inset 0 1px 0 rgba(255, 255, 255, 0.35);
+      }
+
+      .hero {
+        background: var(--hero-bg);
+        box-shadow: var(--hero-shadow);
+      }
+
+      .hero::before {
+        background-image:
+          linear-gradient(var(--grid-line) 1px, transparent 1px),
+          linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+      }
+
+      .hero::after {
+        color: var(--watermark);
+        -webkit-text-stroke: 1px var(--watermark-stroke);
+      }
+
+      .hero__title {
+        text-shadow: var(--title-shadow);
+      }
+
+      .hero__points li::before {
+        box-shadow: 0 0 10px var(--accent-halo);
+      }
+
+      .hero-search__input .el-input__wrapper,
+      .header-search__input .el-input__wrapper,
+      .el-input__wrapper {
+        background-color: var(--control-bg) !important;
+        box-shadow: inset 0 0 0 1px var(--control-border) !important;
+      }
+
+      .header-search__submit {
+        border-color: var(--control-border);
+        background: var(--control-tint);
+      }
+
+      .stats-bar__number {
+        text-shadow: 0 0 28px var(--accent-halo);
+      }
+
+      .stats-bar__item + .stats-bar__item::before {
+        background: var(--divider);
+      }
+
+      .game-card:hover {
+        box-shadow: var(--card-hover-shadow);
+      }
+
+      .game-card__cover {
+        border-bottom-color: var(--divider);
+        background: var(--cover-bg);
+      }
+
+      .game-card__badge {
+        background: var(--accent-grad);
+        color: var(--on-accent);
+      }
+
+      .game-card__count {
+        border-color: var(--chip-border);
+        background: var(--chip-bg);
+      }
+
+      .site-bg__rings {
+        background: repeating-radial-gradient(
+          circle at center,
+          transparent 0 34px,
+          var(--ring-color) 35px,
+          transparent 36px 70px
+        );
+      }
+
+      .site-bg__word {
+        -webkit-text-stroke: 1px var(--bg-word-stroke);
+      }
+
+      .site-bg__grain {
+        opacity: var(--grain-opacity);
+        mix-blend-mode: var(--grain-blend);
+      }
+
+      .site-footer {
+        border-top-color: var(--footer-line);
+        /* 给底部固定的方案切换条留出位置，避免盖住页脚文字 */
+        padding-bottom: 96px;
+      }
+
+      ::selection {
+        background: var(--selection);
+      }
+
+      ::-webkit-scrollbar-track {
+        background: var(--scroll-track);
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: var(--scroll-thumb);
+        border-color: var(--scroll-track);
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--scroll-thumb-hover);
+      }
+
+      /* ====================================================================
+         3. 六套配色
+         当前紫夜用 main.css 原值，A~E 各自给出一整套底、面、线、字与强调色。
+         背景构图（渐变光斑 / 同心环 / 水印 / 颗粒）六版保持一致，只换颜色，
+         这样对比的是配色本身，而不是构图差异。
+         ==================================================================== */
+
+      /* 方案 A：深空靛蓝 —— 冷调科技蓝，接近 Steam 客户端的深色底 */
+      html[data-theme='indigo'] {
+        --bg-base: #060d1a;
+        --bg-soft: #040a14;
+        --surface: rgba(96, 165, 250, 0.1);
+        --surface-raised: rgba(125, 211, 252, 0.16);
+        --line: rgba(147, 197, 253, 0.14);
+        --line-strong: rgba(147, 197, 253, 0.28);
+
+        --text: #edf6ff;
+        --text-soft: #a8c4dd;
+        --text-dim: #6b87a3;
+
+        --accent: #38bdf8;
+        --accent-bright: #7dd3fc;
+        --accent-soft: rgba(56, 189, 248, 0.16);
+        --accent-line: rgba(56, 189, 248, 0.42);
+        --accent-2: #818cf8;
+        --danger: #fb7185;
+
+        --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.065), rgba(56, 189, 248, 0.09) 45%, rgba(29, 78, 216, 0.16));
+        --glass-bg-strong: linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(56, 189, 248, 0.13) 42%, rgba(29, 78, 216, 0.22));
+        --glass-border: rgba(255, 255, 255, 0.14);
+        --glass-border-top: rgba(255, 255, 255, 0.36);
+        --glass-border-left: rgba(255, 255, 255, 0.22);
+
+        --shadow-card: 0 28px 70px -40px rgba(0, 8, 24, 0.9);
+        --shadow-glass:
+          0 30px 80px -42px rgba(0, 8, 24, 0.95),
+          0 4px 18px rgba(0, 8, 24, 0.3);
+
+        --accent-grad: linear-gradient(135deg, #7dd3fc 0%, #38bdf8 50%, #2563eb 100%);
+        --accent-grad-hover: linear-gradient(135deg, #a5e4ff 0%, #4fc9fb 50%, #3b82f6 100%);
+        --on-accent: #04141f;
+        --accent-glow: rgba(37, 99, 235, 0.7);
+        --accent-glow-hover: rgba(56, 189, 248, 0.8);
+        --accent-halo: rgba(56, 189, 248, 0.32);
+        --btn-border: rgba(255, 255, 255, 0.24);
+
+        --hero-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.07), rgba(56, 189, 248, 0.12) 42%, rgba(30, 64, 140, 0.26));
+        --hero-shadow:
+          0 40px 100px -50px rgba(0, 8, 24, 0.95),
+          0 8px 26px rgba(0, 8, 24, 0.35);
+        --title-shadow: 0 10px 40px rgba(0, 8, 24, 0.5);
+        --card-hover-shadow:
+          0 36px 80px -40px rgba(0, 8, 24, 0.95),
+          0 0 34px -8px rgba(56, 189, 248, 0.28);
+
+        --control-bg: rgba(2, 9, 22, 0.45);
+        --control-border: rgba(255, 255, 255, 0.12);
+        --control-tint: rgba(56, 189, 248, 0.14);
+        --ghost-border: rgba(255, 255, 255, 0.14);
+        --ghost-bg: rgba(255, 255, 255, 0.045);
+
+        --cover-bg: rgba(4, 12, 26, 0.6);
+        --chip-bg: rgba(3, 10, 24, 0.62);
+        --chip-border: rgba(255, 255, 255, 0.16);
+
+        --grid-line: rgba(255, 255, 255, 0.035);
+        --watermark: rgba(255, 255, 255, 0.035);
+        --watermark-stroke: rgba(255, 255, 255, 0.06);
+        --bg-word-stroke: rgba(255, 255, 255, 0.055);
+        --ring-color: rgba(255, 255, 255, 0.055);
+        --divider: rgba(255, 255, 255, 0.1);
+        --footer-line: rgba(255, 255, 255, 0.1);
+
+        --scroll-track: #050c18;
+        --scroll-thumb: #22405f;
+        --scroll-thumb-hover: #2f557a;
+        --selection: rgba(56, 189, 248, 0.3);
+        --dot-ring: rgba(255, 255, 255, 0.35);
+
+        color-scheme: dark;
+      }
+
+      html[data-theme='indigo'] .site-bg {
+        background:
+          radial-gradient(55% 45% at 12% -8%, rgba(56, 189, 248, 0.32), transparent 68%),
+          radial-gradient(48% 40% at 90% -4%, rgba(59, 130, 246, 0.3), transparent 70%),
+          radial-gradient(60% 50% at 72% 108%, rgba(29, 78, 216, 0.42), transparent 72%),
+          linear-gradient(160deg, #0a1e3c 0%, #071428 46%, #040b16 100%);
+        box-shadow: inset 0 0 260px 40px rgba(0, 8, 24, 0.5);
+      }
+
+      html[data-theme='indigo'] .site-bg__glow {
+        background:
+          radial-gradient(26% 24% at 22% 18%, rgba(56, 189, 248, 0.2), transparent 70%),
+          radial-gradient(24% 22% at 78% 12%, rgba(99, 102, 241, 0.16), transparent 70%),
+          radial-gradient(34% 30% at 58% 98%, rgba(37, 99, 235, 0.24), transparent 72%);
+      }
+
+      /* 方案 B：曜石黑金 —— 近黑底 + 暖金，回到「百宝箱」的原始品牌色 */
+      html[data-theme='gold'] {
+        --bg-base: #0a0805;
+        --bg-soft: #080604;
+        --surface: rgba(242, 182, 60, 0.09);
+        --surface-raised: rgba(255, 210, 122, 0.15);
+        --line: rgba(242, 215, 164, 0.14);
+        --line-strong: rgba(242, 215, 164, 0.28);
+
+        --text: #f7f2e8;
+        --text-soft: #cabda6;
+        --text-dim: #94866e;
+
+        --accent: #f2b63c;
+        --accent-bright: #ffd27a;
+        --accent-soft: rgba(242, 182, 60, 0.16);
+        --accent-line: rgba(242, 182, 60, 0.42);
+        --accent-2: #fb923c;
+        --danger: #fb7185;
+
+        --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.065), rgba(242, 182, 60, 0.09) 45%, rgba(120, 67, 15, 0.2));
+        --glass-bg-strong: linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(242, 182, 60, 0.13) 42%, rgba(120, 67, 15, 0.26));
+        --glass-border: rgba(255, 255, 255, 0.14);
+        --glass-border-top: rgba(255, 255, 255, 0.36);
+        --glass-border-left: rgba(255, 255, 255, 0.22);
+
+        --shadow-card: 0 28px 70px -40px rgba(14, 8, 0, 0.92);
+        --shadow-glass:
+          0 30px 80px -42px rgba(14, 8, 0, 0.95),
+          0 4px 18px rgba(14, 8, 0, 0.32);
+
+        --accent-grad: linear-gradient(135deg, #ffd98b 0%, #f2b63c 52%, #c2820f 100%);
+        --accent-grad-hover: linear-gradient(135deg, #ffe4a8 0%, #ffc95c 50%, #d99420 100%);
+        --on-accent: #1a1206;
+        --accent-glow: rgba(194, 130, 15, 0.75);
+        --accent-glow-hover: rgba(242, 182, 60, 0.8);
+        --accent-halo: rgba(242, 182, 60, 0.3);
+        --btn-border: rgba(255, 255, 255, 0.24);
+
+        --hero-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.07), rgba(242, 182, 60, 0.1) 42%, rgba(91, 51, 10, 0.3));
+        --hero-shadow:
+          0 40px 100px -50px rgba(10, 6, 0, 0.95),
+          0 8px 26px rgba(10, 6, 0, 0.4);
+        --title-shadow: 0 10px 40px rgba(10, 6, 0, 0.55);
+        --card-hover-shadow:
+          0 36px 80px -40px rgba(14, 8, 0, 0.95),
+          0 0 34px -8px rgba(242, 182, 60, 0.26);
+
+        --control-bg: rgba(16, 11, 5, 0.5);
+        --control-border: rgba(255, 255, 255, 0.12);
+        --control-tint: rgba(242, 182, 60, 0.14);
+        --ghost-border: rgba(255, 255, 255, 0.14);
+        --ghost-bg: rgba(255, 255, 255, 0.045);
+
+        --cover-bg: rgba(18, 12, 5, 0.6);
+        --chip-bg: rgba(16, 11, 5, 0.64);
+        --chip-border: rgba(255, 255, 255, 0.16);
+
+        --grid-line: rgba(255, 255, 255, 0.03);
+        --watermark: rgba(255, 255, 255, 0.03);
+        --watermark-stroke: rgba(255, 255, 255, 0.055);
+        --bg-word-stroke: rgba(255, 255, 255, 0.06);
+        --ring-color: rgba(255, 255, 255, 0.05);
+        --divider: rgba(255, 255, 255, 0.1);
+        --footer-line: rgba(255, 255, 255, 0.1);
+
+        --scroll-track: #0b0805;
+        --scroll-thumb: #3f3527;
+        --scroll-thumb-hover: #55462f;
+        --selection: rgba(242, 182, 60, 0.3);
+        --dot-ring: rgba(255, 255, 255, 0.35);
+
+        color-scheme: dark;
+      }
+
+      html[data-theme='gold'] .site-bg {
+        background:
+          radial-gradient(55% 45% at 12% -8%, rgba(242, 182, 60, 0.26), transparent 68%),
+          radial-gradient(48% 40% at 90% -4%, rgba(217, 119, 6, 0.22), transparent 70%),
+          radial-gradient(60% 50% at 72% 108%, rgba(120, 53, 15, 0.55), transparent 72%),
+          linear-gradient(160deg, #1c1308 0%, #120c06 46%, #080604 100%);
+        box-shadow: inset 0 0 260px 40px rgba(10, 6, 0, 0.5);
+      }
+
+      html[data-theme='gold'] .site-bg__glow {
+        background:
+          radial-gradient(26% 24% at 22% 18%, rgba(251, 191, 36, 0.16), transparent 70%),
+          radial-gradient(24% 22% at 78% 12%, rgba(217, 119, 6, 0.14), transparent 70%),
+          radial-gradient(34% 30% at 58% 98%, rgba(180, 83, 9, 0.2), transparent 72%);
+      }
+
+      /* 方案 C：墨玉青 —— 墨绿底 + 翡翠绿，安静偏收藏向 */
+      html[data-theme='jade'] {
+        --bg-base: #061310;
+        --bg-soft: #04100d;
+        --surface: rgba(52, 211, 153, 0.09);
+        --surface-raised: rgba(110, 231, 183, 0.14);
+        --line: rgba(167, 243, 208, 0.13);
+        --line-strong: rgba(167, 243, 208, 0.26);
+
+        --text: #eefaf5;
+        --text-soft: #a7c9bd;
+        --text-dim: #70968a;
+
+        --accent: #34d399;
+        --accent-bright: #6ee7b7;
+        --accent-soft: rgba(52, 211, 153, 0.16);
+        --accent-line: rgba(52, 211, 153, 0.42);
+        --accent-2: #2dd4bf;
+        --danger: #fb7185;
+
+        --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(52, 211, 153, 0.09) 45%, rgba(6, 78, 59, 0.24));
+        --glass-bg-strong: linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(52, 211, 153, 0.12) 42%, rgba(6, 78, 59, 0.3));
+        --glass-border: rgba(255, 255, 255, 0.14);
+        --glass-border-top: rgba(255, 255, 255, 0.36);
+        --glass-border-left: rgba(255, 255, 255, 0.22);
+
+        --shadow-card: 0 28px 70px -40px rgba(0, 10, 8, 0.9);
+        --shadow-glass:
+          0 30px 80px -42px rgba(0, 10, 8, 0.95),
+          0 4px 18px rgba(0, 10, 8, 0.3);
+
+        --accent-grad: linear-gradient(135deg, #8bf0c8 0%, #34d399 52%, #047857 100%);
+        --accent-grad-hover: linear-gradient(135deg, #a9f5d8 0%, #4ade9f 50%, #059669 100%);
+        --on-accent: #04231a;
+        --accent-glow: rgba(4, 120, 87, 0.75);
+        --accent-glow-hover: rgba(52, 211, 153, 0.8);
+        --accent-halo: rgba(52, 211, 153, 0.3);
+        --btn-border: rgba(255, 255, 255, 0.24);
+
+        --hero-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.07), rgba(52, 211, 153, 0.1) 42%, rgba(6, 78, 59, 0.32));
+        --hero-shadow:
+          0 40px 100px -50px rgba(0, 10, 8, 0.95),
+          0 8px 26px rgba(0, 10, 8, 0.35);
+        --title-shadow: 0 10px 40px rgba(0, 10, 8, 0.5);
+        --card-hover-shadow:
+          0 36px 80px -40px rgba(0, 10, 8, 0.95),
+          0 0 34px -8px rgba(52, 211, 153, 0.28);
+
+        --control-bg: rgba(3, 14, 11, 0.5);
+        --control-border: rgba(255, 255, 255, 0.12);
+        --control-tint: rgba(52, 211, 153, 0.14);
+        --ghost-border: rgba(255, 255, 255, 0.14);
+        --ghost-bg: rgba(255, 255, 255, 0.045);
+
+        --cover-bg: rgba(4, 16, 13, 0.6);
+        --chip-bg: rgba(3, 14, 11, 0.64);
+        --chip-border: rgba(255, 255, 255, 0.16);
+
+        --grid-line: rgba(255, 255, 255, 0.03);
+        --watermark: rgba(255, 255, 255, 0.03);
+        --watermark-stroke: rgba(255, 255, 255, 0.055);
+        --bg-word-stroke: rgba(255, 255, 255, 0.055);
+        --ring-color: rgba(255, 255, 255, 0.05);
+        --divider: rgba(255, 255, 255, 0.1);
+        --footer-line: rgba(255, 255, 255, 0.1);
+
+        --scroll-track: #04100d;
+        --scroll-thumb: #1d3f36;
+        --scroll-thumb-hover: #2a5748;
+        --selection: rgba(52, 211, 153, 0.28);
+        --dot-ring: rgba(255, 255, 255, 0.35);
+
+        color-scheme: dark;
+      }
+
+      html[data-theme='jade'] .site-bg {
+        background:
+          radial-gradient(55% 45% at 12% -8%, rgba(16, 185, 129, 0.26), transparent 68%),
+          radial-gradient(48% 40% at 90% -4%, rgba(20, 184, 166, 0.2), transparent 70%),
+          radial-gradient(60% 50% at 72% 108%, rgba(6, 95, 70, 0.5), transparent 72%),
+          linear-gradient(160deg, #08201a 0%, #061713 46%, #040d0b 100%);
+        box-shadow: inset 0 0 260px 40px rgba(0, 10, 8, 0.5);
+      }
+
+      html[data-theme='jade'] .site-bg__glow {
+        background:
+          radial-gradient(26% 24% at 22% 18%, rgba(16, 185, 129, 0.18), transparent 70%),
+          radial-gradient(24% 22% at 78% 12%, rgba(45, 212, 191, 0.14), transparent 70%),
+          radial-gradient(34% 30% at 58% 98%, rgba(4, 120, 87, 0.2), transparent 72%);
+      }
+
+      /* 方案 D：石墨纯黑 —— 无彩石墨，颜色全部让给游戏封面 */
+      html[data-theme='neutral'] {
+        --bg-base: #08090b;
+        --bg-soft: #060708;
+        --surface: rgba(255, 255, 255, 0.055);
+        --surface-raised: rgba(255, 255, 255, 0.1);
+        --line: rgba(255, 255, 255, 0.1);
+        --line-strong: rgba(255, 255, 255, 0.2);
+
+        --text: #f2f4f7;
+        --text-soft: #b4bbc6;
+        --text-dim: #7c8492;
+
+        --accent: #d9dde4;
+        --accent-bright: #ffffff;
+        --accent-soft: rgba(255, 255, 255, 0.09);
+        --accent-line: rgba(255, 255, 255, 0.26);
+        --accent-2: #a8b0bd;
+        --danger: #fb7185;
+
+        --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.045) 45%, rgba(30, 34, 40, 0.28));
+        --glass-bg-strong: linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.06) 42%, rgba(26, 30, 36, 0.45));
+        --glass-border: rgba(255, 255, 255, 0.13);
+        --glass-border-top: rgba(255, 255, 255, 0.34);
+        --glass-border-left: rgba(255, 255, 255, 0.2);
+
+        --shadow-card: 0 28px 70px -40px rgba(0, 0, 0, 0.95);
+        --shadow-glass:
+          0 30px 80px -42px rgba(0, 0, 0, 0.98),
+          0 4px 18px rgba(0, 0, 0, 0.4);
+
+        --accent-grad: linear-gradient(135deg, #ffffff 0%, #dfe3ea 52%, #b3bac5 100%);
+        --accent-grad-hover: linear-gradient(135deg, #ffffff 0%, #eef0f4 50%, #c6ccd6 100%);
+        --on-accent: #101216;
+        --accent-glow: rgba(0, 0, 0, 0.55);
+        --accent-glow-hover: rgba(255, 255, 255, 0.18);
+        --accent-halo: rgba(255, 255, 255, 0.18);
+        --btn-border: rgba(255, 255, 255, 0.5);
+
+        --hero-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.05) 42%, rgba(18, 21, 26, 0.5));
+        --hero-shadow:
+          0 40px 100px -50px rgba(0, 0, 0, 0.98),
+          0 8px 26px rgba(0, 0, 0, 0.4);
+        --title-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+        --card-hover-shadow:
+          0 36px 80px -40px rgba(0, 0, 0, 0.98),
+          0 0 34px -8px rgba(255, 255, 255, 0.12);
+
+        --control-bg: rgba(8, 9, 11, 0.55);
+        --control-border: rgba(255, 255, 255, 0.12);
+        --control-tint: rgba(255, 255, 255, 0.1);
+        --ghost-border: rgba(255, 255, 255, 0.13);
+        --ghost-bg: rgba(255, 255, 255, 0.045);
+
+        --cover-bg: rgba(10, 11, 13, 0.6);
+        --chip-bg: rgba(8, 9, 11, 0.66);
+        --chip-border: rgba(255, 255, 255, 0.16);
+
+        --grid-line: rgba(255, 255, 255, 0.03);
+        --watermark: rgba(255, 255, 255, 0.03);
+        --watermark-stroke: rgba(255, 255, 255, 0.055);
+        --bg-word-stroke: rgba(255, 255, 255, 0.05);
+        --ring-color: rgba(255, 255, 255, 0.045);
+        --divider: rgba(255, 255, 255, 0.09);
+        --footer-line: rgba(255, 255, 255, 0.09);
+
+        --scroll-track: #08090b;
+        --scroll-thumb: #2c3138;
+        --scroll-thumb-hover: #3a414a;
+        --selection: rgba(255, 255, 255, 0.18);
+        --dot-ring: rgba(255, 255, 255, 0.35);
+
+        color-scheme: dark;
+      }
+
+      html[data-theme='neutral'] .site-bg {
+        background:
+          radial-gradient(55% 45% at 12% -8%, rgba(255, 255, 255, 0.07), transparent 68%),
+          radial-gradient(48% 40% at 90% -4%, rgba(255, 255, 255, 0.05), transparent 70%),
+          radial-gradient(60% 50% at 72% 108%, rgba(80, 90, 105, 0.22), transparent 72%),
+          linear-gradient(160deg, #14171b 0%, #0d1013 46%, #07080a 100%);
+        box-shadow: inset 0 0 260px 40px rgba(0, 0, 0, 0.55);
+      }
+
+      html[data-theme='neutral'] .site-bg__glow {
+        background:
+          radial-gradient(26% 24% at 22% 18%, rgba(255, 255, 255, 0.06), transparent 70%),
+          radial-gradient(24% 22% at 78% 12%, rgba(255, 255, 255, 0.05), transparent 70%),
+          radial-gradient(34% 30% at 58% 98%, rgba(255, 255, 255, 0.06), transparent 72%);
+      }
+
+      /* 方案 E：晨雾浅色 —— 浅蓝灰底 + 白色玻璃，白天也能看的另一条路 */
+      html[data-theme='light'] {
+        --bg-base: #e8edf5;
+        --bg-soft: #f3f7fb;
+        --surface: rgba(255, 255, 255, 0.5);
+        --surface-raised: rgba(255, 255, 255, 0.66);
+        --line: rgba(23, 35, 58, 0.12);
+        --line-strong: rgba(23, 35, 58, 0.22);
+
+        --text: #16233a;
+        --text-soft: #40506a;
+        --text-dim: #66768e;
+
+        --accent: #1d4ed8;
+        --accent-bright: #2563eb;
+        --accent-soft: rgba(37, 99, 235, 0.12);
+        --accent-line: rgba(29, 78, 216, 0.35);
+        --accent-2: #0f766e;
+        --danger: #dc2626;
+
+        --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(240, 246, 255, 0.55) 45%, rgba(214, 228, 248, 0.5));
+        --glass-bg-strong: linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(236, 244, 255, 0.72) 42%, rgba(208, 224, 246, 0.6));
+        --glass-border: rgba(255, 255, 255, 0.95);
+        --glass-border-top: #ffffff;
+        --glass-border-left: rgba(255, 255, 255, 0.98);
+
+        --shadow-card: 0 24px 60px -36px rgba(35, 55, 85, 0.4);
+        --shadow-glass:
+          0 30px 70px -42px rgba(35, 55, 85, 0.45),
+          0 4px 18px rgba(35, 55, 85, 0.06);
+
+        --accent-grad: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 55%, #1e40af 100%);
+        --accent-grad-hover: linear-gradient(135deg, #60a5fa 0%, #2563eb 52%, #1e40af 100%);
+        --on-accent: #ffffff;
+        --accent-glow: rgba(37, 99, 235, 0.35);
+        --accent-glow-hover: rgba(37, 99, 235, 0.45);
+        --accent-halo: rgba(37, 99, 235, 0.25);
+        --btn-border: rgba(255, 255, 255, 0.55);
+
+        --hero-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(222, 233, 248, 0.85) 42%, rgba(191, 210, 236, 0.7));
+        --hero-shadow:
+          0 30px 70px -46px rgba(35, 55, 85, 0.4),
+          0 6px 20px rgba(35, 55, 85, 0.08);
+        --title-shadow: 0 8px 30px rgba(30, 50, 80, 0.14);
+        --card-hover-shadow:
+          0 30px 60px -32px rgba(30, 50, 80, 0.45),
+          0 0 0 1px rgba(37, 99, 235, 0.08);
+
+        --control-bg: rgba(255, 255, 255, 0.72);
+        --control-border: rgba(23, 35, 58, 0.14);
+        --control-tint: rgba(29, 78, 216, 0.08);
+        --ghost-border: rgba(23, 35, 58, 0.14);
+        --ghost-bg: rgba(255, 255, 255, 0.5);
+
+        --cover-bg: rgba(214, 226, 241, 0.7);
+        --chip-bg: rgba(255, 255, 255, 0.82);
+        --chip-border: rgba(23, 35, 58, 0.14);
+
+        --grid-line: rgba(23, 35, 58, 0.05);
+        --watermark: rgba(23, 35, 58, 0.05);
+        --watermark-stroke: rgba(23, 35, 58, 0.09);
+        --bg-word-stroke: rgba(23, 35, 58, 0.08);
+        --ring-color: rgba(23, 35, 58, 0.09);
+        --grain-opacity: 0.16;
+        --grain-blend: soft-light;
+        --divider: rgba(23, 35, 58, 0.1);
+        --footer-line: rgba(23, 35, 58, 0.1);
+
+        --scroll-track: #dfe7f1;
+        --scroll-thumb: #b6c4d6;
+        --scroll-thumb-hover: #a3b3c8;
+        --selection: rgba(37, 99, 235, 0.18);
+        --dot-ring: rgba(23, 35, 58, 0.18);
+
+        color-scheme: light;
+      }
+
+      html[data-theme='light'] .site-bg {
+        background:
+          radial-gradient(55% 45% at 12% -8%, rgba(255, 255, 255, 0.95), transparent 68%),
+          radial-gradient(48% 40% at 90% -4%, rgba(186, 230, 253, 0.8), transparent 70%),
+          radial-gradient(60% 50% at 72% 108%, rgba(199, 210, 254, 0.6), transparent 72%),
+          linear-gradient(160deg, #eef3fa 0%, #e4ecf7 46%, #dae4f1 100%);
+        box-shadow: inset 0 0 260px 40px rgba(120, 140, 175, 0.14);
+      }
+
+      html[data-theme='light'] .site-bg__glow {
+        background:
+          radial-gradient(26% 24% at 22% 18%, rgba(147, 197, 253, 0.3), transparent 70%),
+          radial-gradient(24% 22% at 78% 12%, rgba(255, 255, 255, 0.7), transparent 70%),
+          radial-gradient(34% 30% at 58% 98%, rgba(196, 181, 253, 0.25), transparent 72%);
+      }
+
+      /* --------------------------------------------------------------------
+         4. 底部方案切换条：固定悬浮，配色跟随当前方案
+         -------------------------------------------------------------------- */
+      .variant-bar {
+        position: fixed;
+        bottom: 18px;
+        left: 50%;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        max-width: calc(100vw - 24px);
+        padding: 7px;
+        overflow-x: auto;
+        border: 1px solid var(--line-strong);
+        border-radius: 999px;
+        background: var(--surface-raised);
+        box-shadow: var(--shadow-glass);
+        backdrop-filter: blur(24px) saturate(150%);
+        -webkit-backdrop-filter: blur(24px) saturate(150%);
+        transform: translateX(-50%);
+        scrollbar-width: none;
+      }
+
+      .variant-bar::-webkit-scrollbar {
+        display: none;
+      }
+
+      .variant-bar__label {
+        flex-shrink: 0;
+        padding: 0 10px;
+        color: var(--text-dim);
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        white-space: nowrap;
+      }
+
+      .variant-bar__item {
+        display: inline-flex;
+        flex-shrink: 0;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 12px;
+        border: 1px solid transparent;
+        border-radius: 999px;
+        background: transparent;
+        color: var(--text-soft);
+        font-size: 12px;
+        white-space: nowrap;
+        cursor: pointer;
+        transition:
+          color 0.2s ease,
+          background-color 0.2s ease,
+          border-color 0.2s ease;
+      }
+
+      .variant-bar__item:hover {
+        background: var(--accent-soft);
+        color: var(--text);
+      }
+
+      .variant-bar__item[aria-pressed='true'] {
+        border-color: var(--accent-line);
+        background: var(--accent-soft);
+        color: var(--text);
+      }
+
+      .variant-bar__dot {
+        width: 10px;
+        height: 10px;
+        border: 1px solid var(--dot-ring);
+        border-radius: 50%;
+        background: var(--dot, var(--accent));
+      }
+
+      .variant-bar__hint {
+        flex-shrink: 0;
+        padding: 0 10px 0 6px;
+        color: var(--text-dim);
+        font-size: 11px;
+        white-space: nowrap;
+      }
+
+      @media (max-width: 760px) {
+        .variant-bar__label,
+        .variant-bar__hint {
+          display: none;
+        }
+
+        .variant-bar__item {
+          padding: 8px 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 全站背景层：与 DefaultLayout 相同的四层结构，颜色由当前方案 token 决定 -->
+    <div class="site-bg" aria-hidden="true">
+      <span class="site-bg__glow"></span>
+      <span class="site-bg__rings"></span>
+      <span class="site-bg__word">GAME VAULT</span>
+      <span class="site-bg__grain"></span>
+    </div>
+
+    <div class="app-shell">
+      <header class="site-header">
+        <div class="site-header__inner">
+          <a class="brand" href="#top" aria-label="返回首页">
+            <span class="brand__mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M3.6 9.6h16.8v8.6a1.8 1.8 0 0 1-1.8 1.8H5.4a1.8 1.8 0 0 1-1.8-1.8V9.6Z"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                />
+                <path
+                  d="M2.6 6a1.8 1.8 0 0 1 1.8-1.8h15.2A1.8 1.8 0 0 1 21.4 6v3.6H2.6V6Z"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                />
+                <path d="M10 13.2h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+              </svg>
+            </span>
+            <span class="brand__text">
+              <strong>游戏百宝箱</strong>
+              <em>STEAM GAME HUB</em>
+            </span>
+          </a>
+
+          <form class="header-search" role="search" onsubmit="return false">
+            <div class="el-input header-search__input">
+              <div class="el-input__wrapper">
+                <span class="el-input__prefix">
+                  <svg class="header-search__icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <circle cx="8.8" cy="8.8" r="5.6" stroke="currentColor" stroke-width="1.5" />
+                    <path d="m13.2 13.2 3.4 3.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                  </svg>
+                </span>
+                <input class="el-input__inner" type="text" placeholder="搜索游戏中文名 / 英文名 / 别名" aria-label="搜索游戏" />
+              </div>
+            </div>
+            <button type="submit" class="header-search__submit">搜索</button>
+          </form>
+
+          <div class="header-actions">
+            <button type="button" class="btn btn--primary header-sync">
+              <span>Steam 登录</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main class="site-main">
+        <div class="page home-page">
+          <section class="hero">
+            <div class="hero__content">
+              <h1 class="hero__title">一个游戏，<span class="hero__title-accent">一页</span>找齐。</h1>
+              <p class="hero__desc">
+                Nexus Mod、汉化补丁、风灵月影修改器按游戏聚合。本站只做外链跳转，不托管任何文件。
+              </p>
+
+              <form class="hero-search" role="search" onsubmit="return false">
+                <div class="el-input el-input--large hero-search__input">
+                  <div class="el-input__wrapper">
+                    <span class="el-input__prefix">
+                      <svg class="hero-search__icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                        <circle cx="8.8" cy="8.8" r="5.6" stroke="currentColor" stroke-width="1.5" />
+                        <path
+                          d="m13.2 13.2 3.4 3.4"
+                          stroke="currentColor"
+                          stroke-width="1.5"
+                          stroke-linecap="round"
+                        />
+                      </svg>
+                    </span>
+                    <input
+                      class="el-input__inner"
+                      type="text"
+                      placeholder="输入游戏中文名、英文名或别名，如：老头环"
+                      aria-label="搜索游戏"
+                    />
+                  </div>
+                </div>
+                <button type="submit" class="btn btn--primary hero-search__button">搜索游戏</button>
+              </form>
+
+              <ul class="hero__points">
+                <li>按游戏聚合</li>
+                <li>外链直达来源站</li>
+              </ul>
+            </div>
+          </section>
+
+          <section class="stats-bar" aria-label="站内统计">
+            <div class="stats-bar__item">
+              <p class="stats-bar__label">收录游戏</p>
+              <p class="stats-bar__number">20<span>款</span></p>
+              <p class="stats-bar__hint">支持中英文名与别名检索</p>
+            </div>
+            <div class="stats-bar__item">
+              <p class="stats-bar__label">资源条目</p>
+              <p class="stats-bar__number">75<span>条</span></p>
+              <p class="stats-bar__hint">Nexus / 汉化 / 修改器</p>
+            </div>
+            <div class="stats-bar__item">
+              <p class="stats-bar__label">资源类型</p>
+              <p class="stats-bar__number">3<span>类</span></p>
+              <p class="stats-bar__hint">Nexus Mod · 汉化补丁 · 风灵月影</p>
+            </div>
+          </section>
+
+          <section class="section">
+            <header class="section-head">
+              <div>
+                <h2 class="section-title">热门游戏</h2>
+              </div>
+              <p class="section-meta">按资源数排序 · 共 20 款</p>
+            </header>
+
+            <div class="game-grid">
+              <a class="game-card" href="#top">
+                <div class="game-card__cover">
+                  <span class="game-card__count">7 资源</span>
+                  <img src="./assets/eldenring.jpg" alt="艾尔登法环" />
+                </div>
+                <div class="game-card__body">
+                  <h3 class="game-card__title">艾尔登法环</h3>
+                  <p class="game-card__en">ELDEN RING</p>
+                  <p class="game-card__tag">FromSoftware 与乔治·R·R·马丁合作的开放世界魂系动作 RPG</p>
+                </div>
+              </a>
+
+              <a class="game-card" href="#top">
+                <div class="game-card__cover">
+                  <span class="game-card__count">6 资源</span>
+                  <img src="./assets/cyberpunk.jpg" alt="赛博朋克2077" />
+                </div>
+                <div class="game-card__body">
+                  <h3 class="game-card__title">赛博朋克2077</h3>
+                  <p class="game-card__en">CYBERPUNK 2077</p>
+                  <p class="game-card__tag">在夜之城以义体与黑客手段书写雇佣兵的命运</p>
+                </div>
+              </a>
+
+              <a class="game-card" href="#top">
+                <div class="game-card__cover">
+                  <span class="game-card__count">5 资源</span>
+                  <img src="./assets/bg3.jpg" alt="博德之门3" />
+                </div>
+                <div class="game-card__body">
+                  <h3 class="game-card__title">博德之门3</h3>
+                  <p class="game-card__en">BALDUR'S GATE 3</p>
+                  <p class="game-card__tag">基于 D&D 5e 规则的大型回合制 RPG</p>
+                </div>
+              </a>
+
+              <a class="game-card" href="#top">
+                <div class="game-card__cover">
+                  <span class="game-card__count">4 资源</span>
+                  <img src="./assets/rdr2.jpg" alt="荒野大镖客：救赎2" />
+                </div>
+                <div class="game-card__body">
+                  <h3 class="game-card__title">荒野大镖客：救赎2</h3>
+                  <p class="game-card__en">RED DEAD REDEMPTION 2</p>
+                  <p class="game-card__tag">Rockstar 的西部开放世界史诗</p>
+                </div>
+              </a>
+
+              <a class="game-card" href="#top">
+                <div class="game-card__cover">
+                  <span class="game-card__count">6 资源</span>
+                  <img src="./assets/wukong.jpg" alt="黑神话：悟空" />
+                </div>
+                <div class="game-card__body">
+                  <h3 class="game-card__title">黑神话：悟空</h3>
+                  <p class="game-card__en">BLACK MYTH: WUKONG</p>
+                  <p class="game-card__tag">以《西游记》为蓝本的动作 RPG</p>
+                </div>
+              </a>
+
+              <a class="game-card" href="#top">
+                <div class="game-card__cover">
+                  <span class="game-card__count">3 资源</span>
+                  <img src="./assets/witcher3.jpg" alt="巫师3：狂猎" />
+                </div>
+                <div class="game-card__body">
+                  <h3 class="game-card__title">巫师3：狂猎</h3>
+                  <p class="game-card__en">THE WITCHER 3: WILD HUNT</p>
+                  <p class="game-card__tag">白狼杰洛特踏上寻找希里的旅程</p>
+                </div>
+              </a>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <footer class="site-footer">
+        <p>游戏百宝箱 · 仅聚合外部资源链接，本站不托管任何游戏文件</p>
+      </footer>
+    </div>
+
+    <nav class="variant-bar" aria-label="背景配色方案">
+      <span class="variant-bar__label">背景配色预览</span>
+
+      <button type="button" class="variant-bar__item" data-theme="current" title="快捷键 1">
+        <span class="variant-bar__dot" style="--dot: #8b5cf6"></span>当前紫夜
+      </button>
+      <button type="button" class="variant-bar__item" data-theme="indigo" title="快捷键 2">
+        <span class="variant-bar__dot" style="--dot: #38bdf8"></span>A 深空靛蓝
+      </button>
+      <button type="button" class="variant-bar__item" data-theme="gold" title="快捷键 3">
+        <span class="variant-bar__dot" style="--dot: #f2b63c"></span>B 曜石黑金
+      </button>
+      <button type="button" class="variant-bar__item" data-theme="jade" title="快捷键 4">
+        <span class="variant-bar__dot" style="--dot: #34d399"></span>C 墨玉青
+      </button>
+      <button type="button" class="variant-bar__item" data-theme="neutral" title="快捷键 5">
+        <span class="variant-bar__dot" style="--dot: #dfe3ea"></span>D 石墨纯黑
+      </button>
+      <button type="button" class="variant-bar__item" data-theme="light" title="快捷键 6">
+        <span class="variant-bar__dot" style="--dot: #2563eb"></span>E 晨雾浅色
+      </button>
+
+      <span class="variant-bar__hint">按 1–6 切换</span>
+    </nav>
+
+    <script>
+      /* 六套方案，顺序与底部切换条一致 */
+      const THEMES = ['current', 'indigo', 'gold', 'jade', 'neutral', 'light']
+      const themeItems = Array.from(document.querySelectorAll('.variant-bar__item'))
+
+      /**
+       * 切换当前预览方案，并把选择写进地址栏 hash，刷新后仍停留在同一版。
+       * 请求参数：theme —— 方案标识，取值见 THEMES
+       * 返回参数：无
+       */
+      function applyTheme(theme) {
+        document.documentElement.dataset.theme = theme
+        themeItems.forEach((item) => {
+          item.setAttribute('aria-pressed', String(item.dataset.theme === theme))
+        })
+        history.replaceState(null, '', '#' + theme)
+      }
+
+      /**
+       * 读取地址栏 hash 应用对应方案，未知值回落到当前紫夜。
+       * 请求参数：无
+       * 返回参数：无
+       */
+      function initTheme() {
+        const hashTheme = location.hash.slice(1)
+        applyTheme(THEMES.includes(hashTheme) ? hashTheme : 'current')
+      }
+
+      themeItems.forEach((item) => {
+        item.addEventListener('click', () => applyTheme(item.dataset.theme))
+      })
+
+      // 数字键 1-6 依次切换，方便来回对比同一处背景的色差；
+      // 在搜索框里输入数字时不能抢键，否则打字会误换配色
+      document.addEventListener('keydown', (event) => {
+        if (event.altKey || event.ctrlKey || event.metaKey) return
+        if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) return
+        const index = Number(event.key)
+        if (index >= 1 && index <= THEMES.length) {
+          applyTheme(THEMES[index - 1])
+        }
+      })
+
+      initTheme()
+    </script>
+  </body>
+</html>
