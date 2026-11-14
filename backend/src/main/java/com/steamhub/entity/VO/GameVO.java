@@ -41,6 +41,10 @@ public class GameVO {
     @Schema(description = "发售日期")
     private LocalDate releaseDate;
 
+    /** 官方中文支持：0 无中文，1 仅繁体中文，2 官方简体中文 */
+    @Schema(description = "官方中文支持：0 无 / 1 仅繁中 / 2 简中", example = "2")
+    private Integer zhSupport;
+
     /** 该游戏已收录的资源数，用于列表按热度排序与卡片展示 */
     @Schema(description = "已收录资源数", example = "0")
     private Long resourceCount;

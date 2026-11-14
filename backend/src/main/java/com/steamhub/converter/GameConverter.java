@@ -62,5 +62,6 @@ public final class GameConverter {
         vo.setCoverUrl(po.getCoverUrl());
         vo.setSummary(po.getSummary());
         vo.setReleaseDate(po.getReleaseDate());
+        vo.setZhSupport(po.getZhSupport() == null ? 0 : po.getZhSupport());
     }
 }

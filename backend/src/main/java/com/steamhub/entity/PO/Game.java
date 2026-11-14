@@ -40,6 +40,9 @@ public class Game {
     /** 发售日期，可空 */
     private LocalDate releaseDate;
 
+    /** 官方中文支持：0 无中文，1 仅繁体中文，2 官方简体中文；由 Steam 商店接口同步 */
+    private Integer zhSupport;
+
     /** 创建时间，插入时为空由数据库默认值填充，查询后由数据库值回填 */
     private LocalDateTime createdAt;
 

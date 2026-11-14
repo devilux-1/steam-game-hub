@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS game (
   cover_url     VARCHAR(500) NULL COMMENT '封面图地址',
   summary       VARCHAR(1000) NULL COMMENT '简介',
   release_date  DATE         NULL COMMENT '发售日期',
+  zh_support    TINYINT      NOT NULL DEFAULT 0 COMMENT '官方中文支持：0 无 / 1 仅繁中 / 2 简中',
   created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),

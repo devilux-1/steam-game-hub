@@ -333,6 +333,8 @@ Tab 为空时展示引导文案，不留空白。
 - **游戏库详情**：同步时把未收录的游戏自动补录进 `game` 表（英文名 + AppID + Steam 头图，`name_cn` / `summary` 留空待补），因此库内每一项都会打开站内资源聚合页；补录失败或旧数据未刷新时走 `/library/{appid}` 兜底页。库列表封面统一回落到 `cdn.cloudflare.steamstatic.com/steam/apps/{appid}/header.jpg`
 - **前端体积**：除首页外全部路由懒加载，Element Plus 与 Vue 运行时拆独立 chunk，业务入口由 1134KB 降到约 20KB
 
+- **中文支持**：`game.zh_support` 取自 Steam 商店接口的 `supported_languages`（2 官方简中 / 1 仅繁中 / 0 无中文）。「汉化补丁」Tab 直接给出结论，只对缺中文的 12 款老游戏引导到外部补丁站；原先 20 条指向频道首页的占位汉化数据已删除，站内不再展示未经核实的补丁链接
+
 ## 12. 外部依赖
 
 | 依赖 | 用途 | 备注 |

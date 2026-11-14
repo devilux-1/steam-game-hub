@@ -79,6 +79,24 @@
       <el-tabs v-model="activeTab" class="resource-tabs" @tab-change="onTabChange">
         <el-tab-pane v-for="tab in tabs" :key="tab.name" :label="tab.label" :name="tab.name">
           <div class="resource-panel">
+            <!-- 汉化补丁 Tab：先给「官方是否自带中文」的结论，再列站内资源 -->
+            <div
+              v-if="tab.name === 'HANZI_PATCH'"
+              class="zh-support"
+              :class="`zh-support--${zhSupportInfo.tone}`"
+            >
+              <p class="zh-support__title">{{ zhSupportInfo.title }}</p>
+              <p class="zh-support__desc">{{ zhSupportInfo.desc }}</p>
+              <a
+                v-if="zhSupportInfo.showSearch"
+                class="zh-support__link"
+                href="https://patch.ali213.net/showclass/class7_1.html"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                去游侠补丁网找汉化 ↗
+              </a>
+            </div>
             <!-- Nexus 每日精选：后台同步缓存的 Mod，仅 Nexus Tab 展示，与下方手工资源分开展示。 -->
             <section v-if="tab.name === 'NEXUS_MOD'" class="nexus-feature" aria-label="Nexus 每日精选">
               <div v-if="nexusState.loading" class="nexus-loading" aria-label="Nexus 精选加载中">
@@ -192,7 +210,12 @@
               </article>
             </div>
 
-            <EmptyState v-else :tag="tab.tag" :title="tab.emptyTitle" :description="tab.emptyDesc" />
+            <EmptyState
+              v-else-if="!(tab.name === 'HANZI_PATCH' && zhSupportInfo.tone === 'ok')"
+              :tag="tab.tag"
+              :title="tab.emptyTitle"
+              :description="tab.emptyDesc"
+            />
 
             <p class="resource-panel__foot">{{ tab.foot }}</p>
           </div>
@@ -220,6 +243,37 @@ const detailLoading = ref(false)
 const detailError = ref('')
 const game = ref(null)
 const activeTab = ref('NEXUS_MOD')
+
+/**
+ * 官方中文支持说明：tone 决定配色，showSearch 决定是否给外部补丁站入口。
+ * 请求参数：无（读取 game.zhSupport，2 简中 / 1 仅繁中 / 0 无中文）
+ * 返回参数：{ tone, title, desc, showSearch }
+ */
+const zhSupportInfo = computed(() => {
+  const level = Number(game.value?.zhSupport ?? 0)
+  if (level === 2) {
+    return {
+      tone: 'ok',
+      title: '官方支持简体中文',
+      desc: '这款游戏自带官方简体中文，一般不需要额外汉化补丁；如需字体或术语润色，可再找社区补丁。',
+      showSearch: false
+    }
+  }
+  if (level === 1) {
+    return {
+      tone: 'warn',
+      title: '官方仅支持繁体中文',
+      desc: '游戏本体没有官方简体中文，需要简体时可使用社区汉化补丁；安装前请核对适配的游戏版本。',
+      showSearch: true
+    }
+  }
+  return {
+    tone: 'none',
+    title: '官方无中文支持',
+    desc: '这款游戏没有官方中文，需要社区汉化补丁；安装前请核对适配的游戏版本。',
+    showSearch: true
+  }
+})
 
 // 三个 Tab 与设计文档 F1 的资源类型一一对应；空状态文案说明该游戏暂未收录的原因。
 const tabs = [
@@ -411,3 +465,54 @@ function openSteam() {
 // 同一组件在 /games/1 与 /games/2 之间切换时重新拉取详情与资源。
 watch(() => route.params.id, loadDetail, { immediate: true })
 </script>
+
+<style scoped>
+/* 官方中文支持提示：三种状态用左侧色条区分，避免抢资源卡片的视觉重心 */
+.zh-support {
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.12));
+  border-left-width: 3px;
+  border-radius: var(--radius-lg, 14px);
+  background: rgba(10, 6, 24, 0.42);
+}
+
+.zh-support--ok {
+  border-left-color: #34d399;
+}
+
+.zh-support--warn {
+  border-left-color: #fbbf24;
+}
+
+.zh-support--none {
+  border-left-color: #f87171;
+}
+
+.zh-support__title {
+  margin: 0;
+  color: var(--text, #f5f3ff);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.zh-support__desc {
+  margin: 6px 0 0;
+  color: var(--text-dim, rgba(245, 243, 255, 0.62));
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.zh-support__link {
+  display: inline-block;
+  margin-top: 10px;
+  color: var(--accent, #a78bfa);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.zh-support__link:hover {
+  text-decoration: underline;
+}
+</style>
+

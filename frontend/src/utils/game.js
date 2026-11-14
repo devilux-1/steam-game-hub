@@ -4,7 +4,7 @@
 /**
  * 把后端游戏对象整理成视图可用的固定结构。
  * 请求参数：game —— 后端返回的游戏对象，可为 null / undefined
- * 返回参数：{ id, nameCn, nameEn, summary, coverUrl, steamAppId, resourceCount, releaseDate, aliases }；缺失字段为空串、0 或空数组
+ * 返回参数：{ id, nameCn, nameEn, summary, coverUrl, steamAppId, resourceCount, releaseDate, zhSupport, aliases }；缺失字段为空串、0 或空数组
  */
 export function normalizeGame(game) {
   if (!game || typeof game !== 'object') {
@@ -17,6 +17,7 @@ export function normalizeGame(game) {
       steamAppId: null,
       resourceCount: 0,
       releaseDate: '',
+      zhSupport: 0,
       aliases: []
     }
   }
@@ -30,6 +31,8 @@ export function normalizeGame(game) {
     // 列表接口未返回资源数时按 0 展示，避免卡片出现 NaN。
     resourceCount: Number(game.resourceCount ?? game.resource_count ?? 0) || 0,
     releaseDate: game.releaseDate ?? game.release_date ?? '',
+    // 0 无中文 / 1 仅繁中 / 2 官方简中；缺省按 0 处理，避免出现「未知」这种更糟的误导。
+    zhSupport: Number(game.zhSupport ?? game.zh_support ?? 0) || 0,
     aliases: Array.isArray(game.aliases) ? game.aliases.filter((alias) => typeof alias === 'string' && alias) : []
   }
 }
