@@ -103,46 +103,6 @@ CREATE TABLE IF NOT EXISTS user_library (
   KEY idx_user_time (user_id, playtime_forever)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '用户游戏库';
 
--- 画质选项：每个游戏可调选项及其性能/视觉权重
-CREATE TABLE IF NOT EXISTS graphics_option (
-  id                  BIGINT       NOT NULL AUTO_INCREMENT,
-  game_id             BIGINT       NOT NULL,
-  option_name         VARCHAR(100) NOT NULL COMMENT '如 阴影质量',
-  levels              VARCHAR(200) NOT NULL COMMENT '档位，逗号分隔：低,中,高,超高',
-  cost_weight         DECIMAL(4, 2) NOT NULL DEFAULT 1.00 COMMENT '每提升一级的帧率代价权重',
-  visual_value        DECIMAL(4, 2) NOT NULL DEFAULT 1.00 COMMENT '视觉收益权重',
-  default_level_index INT          NOT NULL DEFAULT 0 COMMENT '默认推荐档位下标',
-  PRIMARY KEY (id),
-  UNIQUE KEY uk_game_option (game_id, option_name)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '画质选项';
-
--- 基准帧率：该游戏在该 GPU 档位 1080P 中画质下的实测帧率
-CREATE TABLE IF NOT EXISTS fps_baseline (
-  id           BIGINT       NOT NULL AUTO_INCREMENT,
-  game_id      BIGINT       NOT NULL,
-  gpu_tier     VARCHAR(20)  NOT NULL COMMENT 'GPU 档位编码，如 RTX4060',
-  resolution   VARCHAR(10)  NOT NULL DEFAULT '1080P' COMMENT '1080P / 2K / 4K',
-  ref_preset   VARCHAR(20)  NOT NULL DEFAULT 'MEDIUM' COMMENT '基准预设',
-  fps          DECIMAL(6, 1) NOT NULL COMMENT '中画质下实测帧率',
-  sample_count INT          NOT NULL DEFAULT 0 COMMENT '参与统计的样本数',
-  PRIMARY KEY (id),
-  UNIQUE KEY uk_game_gpu_res (game_id, gpu_tier, resolution)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '基准帧率';
-
--- 用户回填的实际帧率，用于校准基准数据
-CREATE TABLE IF NOT EXISTS fps_feedback (
-  id            BIGINT       NOT NULL AUTO_INCREMENT,
-  user_id       BIGINT       NOT NULL,
-  game_id       BIGINT       NOT NULL,
-  gpu_tier      VARCHAR(20)  NOT NULL,
-  resolution    VARCHAR(10)  NOT NULL,
-  settings_json VARCHAR(2000) NULL COMMENT '提交时的画质设置快照',
-  actual_fps    DECIMAL(6, 1) NOT NULL,
-  created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  KEY idx_game_gpu (game_id, gpu_tier, resolution)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '帧率反馈';
-
 -- 管理员账号：与普通用户完全隔离
 CREATE TABLE IF NOT EXISTS admin_user (
   id            BIGINT       NOT NULL AUTO_INCREMENT,

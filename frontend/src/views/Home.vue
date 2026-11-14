@@ -5,7 +5,7 @@
       <div class="hero__content">
         <h1 class="hero__title">一个游戏，<span class="hero__title-accent">一页</span>找齐。</h1>
         <p class="hero__desc">
-          Nexus Mod、汉化补丁、风灵月影修改器按游戏聚合，再配一份「稳 60 帧」的画质建议。本站只做外链跳转，不托管任何文件。
+          Nexus Mod、汉化补丁、风灵月影修改器按游戏聚合。本站只做外链跳转，不托管任何文件。
         </p>
 
         <form class="hero-search" role="search" @submit.prevent="onSearchSubmit">
@@ -31,7 +31,6 @@
         <ul class="hero__points">
           <li>按游戏聚合</li>
           <li>外链直达来源站</li>
-          <li>画质顾问稳 60 帧</li>
         </ul>
       </div>
     </section>

@@ -2,12 +2,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '@/views/Home.vue'
 import GameDetail from '@/views/GameDetail.vue'
-import GraphicsAdvisor from '@/views/GraphicsAdvisor.vue'
 import MyLibrary from '@/views/MyLibrary.vue'
 import AdminLogin from '@/views/AdminLogin.vue'
 import AdminGames from '@/views/AdminGames.vue'
 import AdminResources from '@/views/AdminResources.vue'
-import AdminGraphics from '@/views/AdminGraphics.vue'
 import { hasAdminToken } from '@/utils/adminAuth'
 
 const routes = [
@@ -17,12 +15,6 @@ const routes = [
     name: 'game-detail',
     component: GameDetail,
     meta: { title: '游戏条目' }
-  },
-  {
-    path: '/games/:id/graphics',
-    name: 'graphics-advisor',
-    component: GraphicsAdvisor,
-    meta: { title: '画质顾问' }
   },
   {
     path: '/me/library',
@@ -47,12 +39,6 @@ const routes = [
     name: 'admin-resources',
     component: AdminResources,
     meta: { title: '资源管理', requiresAdmin: true }
-  },
-  {
-    path: '/admin/graphics',
-    name: 'admin-graphics',
-    component: AdminGraphics,
-    meta: { title: '画质数据', requiresAdmin: true }
   },
   // 未匹配路径回首页，避免骨架阶段出现空白页。
   { path: '/:pathMatch(.*)*', redirect: '/' }

@@ -24,8 +24,7 @@ const username = getAdminUsername()
 // 后台菜单与路由表一一对应。
 const adminMenus = [
   { name: 'admin-games', label: '游戏管理' },
-  { name: 'admin-resources', label: '资源管理' },
-  { name: 'admin-graphics', label: '画质数据' }
+  { name: 'admin-resources', label: '资源管理' }
 ]
 
 /**

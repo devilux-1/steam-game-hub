@@ -61,8 +61,7 @@
         </p>
 
         <div class="detail-actions">
-          <button type="button" class="btn btn--gold" @click="goAdvisor">打开画质顾问</button>
-          <button type="button" class="btn btn--ghost" :disabled="!game?.steamAppId" @click="openSteam">
+          <button type="button" class="btn btn--primary" :disabled="!game?.steamAppId" @click="openSteam">
             Steam 商店
           </button>
         </div>
@@ -205,7 +204,7 @@
 
 <script setup>
 import { computed, reactive, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { getGame, getGameResources, getGameNexusMods, clickResource } from '@/api/games'
 import { normalizeGame } from '@/utils/game'
 import { normalizeResource } from '@/utils/resource'
@@ -214,7 +213,6 @@ import { formatDate, formatDateTime } from '@/utils/format'
 import EmptyState from '@/components/EmptyState.vue'
 
 const route = useRoute()
-const router = useRouter()
 
 const gameId = computed(() => String(route.params.id ?? ''))
 const detailLoading = ref(false)
@@ -408,15 +406,6 @@ function openSteam() {
   const appId = game.value?.steamAppId
   if (!appId) return
   window.open(`https://store.steampowered.com/app/${appId}/`, '_blank', 'noopener')
-}
-
-/**
- * 跳转到当前游戏的画质顾问页。
- * 请求参数：无（读取 gameId）
- * 返回参数：无
- */
-function goAdvisor() {
-  router.push({ name: 'graphics-advisor', params: { id: gameId.value } })
 }
 
 // 同一组件在 /games/1 与 /games/2 之间切换时重新拉取详情与资源。
