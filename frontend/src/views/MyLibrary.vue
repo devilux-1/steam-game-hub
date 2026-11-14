@@ -97,7 +97,7 @@
           class="library-item library-item--clickable"
           @click="openItem(item)"
         >
-          <img v-if="item.coverUrl" class="library-item__cover" :src="item.coverUrl" alt="" loading="lazy" />
+          <img v-if="item.coverUrl" class="library-item__cover" :src="item.coverUrl" alt="" loading="lazy" @error="markBrokenCover" />
           <div v-else class="library-item__cover library-item__cover--empty" aria-hidden="true"></div>
 
           <div class="library-item__main">
@@ -136,6 +136,7 @@ import EmptyState from '@/components/EmptyState.vue'
 import { useUserStore } from '@/stores/user'
 import { STEAM_LOGIN_URL, clearSteamLibrary, getMyLibrary, syncSteamLibrary } from '@/api/user'
 import { formatDateTime, formatMinutes } from '@/utils/format'
+import { markBrokenCover } from '@/utils/image'
 
 const route = useRoute()
 const router = useRouter()

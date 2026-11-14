@@ -39,7 +39,7 @@
 
     <section v-else class="detail-hero">
       <div class="detail-cover" :class="{ 'detail-cover--empty': !game?.coverUrl }">
-        <img v-if="game?.coverUrl" :src="game.coverUrl" :alt="game.nameCn || game.nameEn" />
+        <img v-if="game?.coverUrl" :src="game.coverUrl" :alt="game.nameCn || game.nameEn" @error="hideBrokenImage" />
         <svg v-else viewBox="0 0 64 64" fill="none" aria-hidden="true">
           <rect x="12" y="18" width="40" height="29" rx="9" stroke="currentColor" stroke-width="1.7" />
           <path d="M23 32.5h5M25.5 30v5M39 30.5h.2M44 34h.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
@@ -233,6 +233,7 @@ import { normalizeGame } from '@/utils/game'
 import { normalizeResource } from '@/utils/resource'
 import { normalizeNexusMod, formatNexusCount } from '@/utils/nexus'
 import { formatDate, formatDateTime } from '@/utils/format'
+import { hideBrokenImage } from '@/utils/image'
 import EmptyState from '@/components/EmptyState.vue'
 
 const route = useRoute()

@@ -37,7 +37,7 @@
         <router-link v-for="item in games" :key="item.id" :to="`/games/${item.id}`" class="game-card">
           <div class="game-card__cover">
             <span class="game-card__count">{{ item.resourceCount }} 资源</span>
-            <img v-if="item.coverUrl" :src="item.coverUrl" :alt="item.nameCn || item.nameEn" loading="lazy" />
+            <img v-if="item.coverUrl" :src="item.coverUrl" :alt="item.nameCn || item.nameEn" loading="lazy" @error="hideBrokenImage" />
             <svg v-else viewBox="0 0 64 64" fill="none" aria-hidden="true">
               <rect x="13" y="19" width="38" height="27" rx="9" stroke="currentColor" stroke-width="1.6" />
               <path d="M23 32.5h5M25.5 30v5M39 30.5h.2M44 34h.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
@@ -81,6 +81,7 @@ import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { searchGames } from '@/api/games'
 import { normalizeGame } from '@/utils/game'
+import { hideBrokenImage } from '@/utils/image'
 import EmptyState from '@/components/EmptyState.vue'
 
 /** 每页条数：6 列网格正好 4 行，也与后端 size 上限（100）无冲突 */

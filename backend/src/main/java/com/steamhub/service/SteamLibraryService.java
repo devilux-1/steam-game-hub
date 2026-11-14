@@ -12,6 +12,7 @@ import com.steamhub.entity.PO.UserLibrary;
 import com.steamhub.entity.VO.LibraryDetailVO;
 import com.steamhub.entity.VO.LibraryItemVO;
 import com.steamhub.entity.VO.LibrarySummaryVO;
+import com.steamhub.entity.VO.StoreGameVO;
 import com.steamhub.mapper.GameMapper;
 import com.steamhub.mapper.UserLibraryMapper;
 import lombok.RequiredArgsConstructor;
@@ -281,7 +282,7 @@ public class SteamLibraryService {
             Game game = new Game();
             game.setNameEn(titleOf(dto));
             game.setSteamAppid(appid);
-            game.setCoverUrl(STEAM_HEADER_BASE + appid + "/header.jpg");
+            game.setCoverUrl(resolveNewGameCover(appid));
             try {
                 gameMapper.insert(game);
                 created++;
@@ -311,6 +312,27 @@ public class SteamLibraryService {
      */
     private String titleOf(SteamOwnedGameDTO dto) {
         return dto.getName() == null || dto.getName().isBlank() ? "App " + dto.getAppid() : dto.getName();
+    }
+
+    /**
+     * 为新收录的游戏挑选封面：优先用 Steam 商店返回的新版图床地址，取不到再退回旧式 CDN 路径。
+     * 2025 年后上架的游戏在旧路径 header.jpg 上已经 404，只靠拼接会得到坏图。
+     * 商店服务带 24 小时成功缓存与 10 分钟失败缓存，接口异常时不会逐个游戏重复超时。
+     *
+     * @param appid Steam AppID，非空且大于 0
+     * @return 封面地址，始终非空
+     */
+    private String resolveNewGameCover(Integer appid) {
+        try {
+            StoreGameVO store = steamStoreService.get(appid);
+            if (store != null && store.getHeaderImage() != null && !store.getHeaderImage().isBlank()) {
+                return store.getHeaderImage();
+            }
+        } catch (RuntimeException e) {
+            // 商店接口不可用时退回旧路径，不阻断游戏入库
+            log.warn("获取游戏封面失败 appid={}：{}", appid, e.getMessage());
+        }
+        return STEAM_HEADER_BASE + appid + "/header.jpg";
     }
 
     /**

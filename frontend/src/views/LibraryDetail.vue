@@ -20,7 +20,7 @@
     <template v-else>
       <section class="detail-hero">
         <div class="detail-cover" :class="{ 'detail-cover--empty': !detail.coverUrl }">
-          <img v-if="detail.coverUrl" :src="detail.coverUrl" :alt="displayName" />
+          <img v-if="detail.coverUrl" :src="detail.coverUrl" :alt="displayName" @error="hideBrokenImage" />
         </div>
 
         <div class="detail-info">
@@ -84,6 +84,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { getLibraryItem } from '@/api/user'
 import { formatDate, formatMinutes } from '@/utils/format'
+import { hideBrokenImage } from '@/utils/image'
 import EmptyState from '@/components/EmptyState.vue'
 
 const route = useRoute()
