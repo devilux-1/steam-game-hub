@@ -25,7 +25,7 @@
               </svg>
             </template>
           </el-input>
-          <button type="submit" class="btn btn--gold hero-search__button">搜索游戏</button>
+          <button type="submit" class="btn btn--primary hero-search__button">搜索游戏</button>
         </form>
 
         <ul class="hero__points">

@@ -31,7 +31,7 @@
 
         <p v-if="errorMessage" class="form-hint form-hint--warn" role="alert">{{ errorMessage }}</p>
 
-        <button type="submit" class="btn btn--gold admin-login__submit" :disabled="submitting">
+        <button type="submit" class="btn btn--primary admin-login__submit" :disabled="submitting">
           {{ submitting ? '登录中…' : '进入后台' }}
         </button>
       </form>
@@ -96,3 +96,4 @@ async function onSubmit() {
   }
 }
 </script>
+

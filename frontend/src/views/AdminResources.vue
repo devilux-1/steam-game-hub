@@ -21,7 +21,7 @@
           <el-option v-for="item in gameOptions" :key="item.id" :label="item.label" :value="String(item.id)" />
         </el-select>
         <p class="admin-toolbar__hint">{{ filterHint }}</p>
-        <button type="button" class="btn btn--gold admin-toolbar__primary" @click="openCreate">新增资源</button>
+        <button type="button" class="btn btn--primary admin-toolbar__primary" @click="openCreate">新增资源</button>
       </div>
 
       <p v-if="optionsError" class="form-hint form-hint--warn">
@@ -154,7 +154,7 @@
 
       <template #footer>
         <button type="button" class="btn btn--ghost" :disabled="saving" @click="dialogVisible = false">取消</button>
-        <button type="button" class="btn btn--gold" :disabled="saving" @click="onSubmit">
+        <button type="button" class="btn btn--primary" :disabled="saving" @click="onSubmit">
           {{ saving ? '保存中…' : '保存' }}
         </button>
       </template>

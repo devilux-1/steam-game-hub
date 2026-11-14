@@ -20,7 +20,7 @@
       <div class="admin-sync__actions">
         <button
           type="button"
-          class="btn btn--gold"
+          class="btn btn--primary"
           :disabled="syncRunning || syncStarting"
           @click="onTriggerSync"
         >
@@ -43,7 +43,7 @@
           @clear="onSearch"
         />
         <button type="button" class="btn btn--ghost" @click="onSearch">搜索</button>
-        <button type="button" class="btn btn--gold admin-toolbar__primary" @click="openCreate">新增游戏</button>
+        <button type="button" class="btn btn--primary admin-toolbar__primary" @click="openCreate">新增游戏</button>
       </div>
 
       <EmptyState
@@ -146,7 +146,7 @@
 
       <template #footer>
         <button type="button" class="btn btn--ghost" :disabled="saving" @click="dialogVisible = false">取消</button>
-        <button type="button" class="btn btn--gold" :disabled="saving" @click="onSubmit">
+        <button type="button" class="btn btn--primary" :disabled="saving" @click="onSubmit">
           {{ saving ? '保存中…' : '保存' }}
         </button>
       </template>
@@ -547,3 +547,4 @@ onMounted(onPageReady)
 // 离开页面时清理轮询定时器，避免后台页面继续发请求。
 onBeforeUnmount(stopSyncPolling)
 </script>
+
