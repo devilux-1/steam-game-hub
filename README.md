@@ -1,4 +1,4 @@
-# 游戏百宝箱 · Steam 单机游戏资源站
+<img width="2471" height="1521" alt="image" src="https://github.com/user-attachments/assets/fbb25024-50db-41b5-848f-db9c9961ff59" /># 游戏百宝箱 · Steam 单机游戏资源站
 
 按游戏聚合 Nexus 精选 Mod、汉化补丁、风灵月影修改器，并支持 Steam 登录与游戏库同步。
 
@@ -119,5 +119,8 @@ npm run dev
 
 **前端体积**：除首页外全部路由按需加载，Element Plus 与 Vue 运行时拆成独立 chunk，业务入口约 20KB。
 
+## 项目展示
 <img width="2466" height="1526" alt="image" src="https://github.com/user-attachments/assets/e867f889-fece-446b-a348-de13edc1ff6e" />
+<img width="2471" height="1521" alt="image" src="https://github.com/user-attachments/assets/929b513d-88cc-4002-a622-51a9f049dac3" />
+
 
