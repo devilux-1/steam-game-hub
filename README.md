@@ -118,3 +118,6 @@ npm run dev
 **中文支持**：`game.zh_support` 由 Steam 商店接口的 `supported_languages` 同步（2 官方简中 / 1 仅繁中 / 0 无中文）。「汉化补丁」Tab 先给结论：官方自带简中的直接说明无需补丁，只对确实缺中文的游戏引导到外部补丁站，站内不再收录占位链接。
 
 **前端体积**：除首页外全部路由按需加载，Element Plus 与 Vue 运行时拆成独立 chunk，业务入口约 20KB。
+
+<img width="2466" height="1526" alt="image" src="https://github.com/user-attachments/assets/e867f889-fece-446b-a348-de13edc1ff6e" />
+
